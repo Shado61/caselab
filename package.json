@@ -1,0 +1,10 @@
+{
+  "name": "caselab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CaseLab: CS2 case site with Steam sign-in and an owner-only admin panel",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "pg": "^8.13.0" }
+}

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: caselab
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/live
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: OWNER_STEAMID
+        sync: false
