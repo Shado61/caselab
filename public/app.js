@@ -476,7 +476,15 @@ function caseShow(c){
   c.all.slice().sort((a,b)=>b.base-a.base).forEach(x=>{if(!seen.has(x.name)&&out.length<5){seen.add(x.name);out.push(x)}});
   return out;
 }
+/* realistic case photos (img/case/<id>.jpg) for every case except the official CS2 ones */
+const CASE_PHOTO=new Set(['red','blue','agents1','green','gloves1','purple','ak','pink','agents2','awp','gloves2','knife','gold','karambit','legend','rushb','eco','clutch','silver','global','sigma','rizz','ohio','brainrot','stonks','muchwow','fine','aura','npc','cringe','ggez','tilt','tokyo','desert','frost','space','dragon']);
+function casePhoto(c,big){
+  const d=DESIGN[c.id]||{},a=d.a||`hsl(${c.hue} 85% 60%)`;
+  const sparks=Array.from({length:5},(_,i)=>`<i style="--x:${14+((hash(c.id+i)%72))}%;--d:${(i*.47)%2.4}s;--s:${2+hash(c.id+'s'+i)%3}px"></i>`).join('');
+  return `<div class="cr photo${big?' big':''}" style="--h:${c.hue};--a:${a};--dl:${-(hash(c.id)%40)/10}s" aria-hidden="true"><div class="ph-glow"></div><img src="img/case/${c.id}.jpg" alt="" loading="lazy" decoding="async"><div class="sc-sparks">${sparks}</div></div>`;
+}
 function caseScene(c,big){
+  if(CASE_PHOTO.has(c.id))return casePhoto(c,big);
   const d=DESIGN[c.id]||REAL_DESIGN[c.id];if(!d)return '';
   const n='sc'+(++CASE_N)+'_',a=d.a,b=d.b,meme=MEME[c.id];
   const lbl=d.t.length>8?Math.max(6,10-(d.t.length-8)*.6):10;

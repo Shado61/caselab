@@ -561,3 +561,20 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:rgba(
 @media (max-width:700px){.online{display:none}.me-chip .nm{display:none}.live-lbl{display:none}}
 
 [hidden]{display:none!important}
+
+/* realistic case photos */
+.cr.photo{position:relative;width:100%;max-width:250px;height:214px;margin:2px auto 0;display:grid;place-items:center;perspective:none}
+.cr.photo::before,.cr.photo::after{display:none}
+.cr.photo img{position:relative;z-index:1;width:236px;height:236px;object-fit:contain;margin-top:-12px;
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,#000 56%,transparent 71%);mask-image:radial-gradient(circle at 50% 50%,#000 56%,transparent 71%);
+  filter:drop-shadow(0 14px 22px rgba(0,0,0,.55)) saturate(1.08);animation:phFloat 5.5s ease-in-out infinite;animation-delay:var(--dl,0s);transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s}
+.cr.photo .ph-glow{position:absolute;left:50%;top:56%;width:78%;height:46%;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--a) 55%,transparent),transparent);filter:blur(18px);opacity:.75;animation:phGlow 3.6s ease-in-out infinite;animation-delay:var(--dl,0s)}
+.cr.photo .sc-sparks{z-index:2}
+.case:hover .cr.photo img,a:hover .cr.photo img{transform:translateY(-8px) scale(1.06);filter:drop-shadow(0 20px 26px rgba(0,0,0,.6)) saturate(1.2) brightness(1.06)}
+.banner .cr.photo{width:280px;max-width:280px;height:250px}
+.banner .cr.photo img{width:290px;height:290px;margin-top:-20px}
+@media (max-width:600px){.banner .cr.photo{width:200px;height:184px}.banner .cr.photo img{width:210px;height:210px}}
+@keyframes phFloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
+@keyframes phGlow{0%,100%{opacity:.55}50%{opacity:.9}}
+@media (prefers-reduced-motion:reduce){.cr.photo img,.cr.photo .ph-glow{animation:none}}
