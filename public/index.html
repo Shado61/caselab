@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CaseLab — кейсы CS2</title>
+<meta name="description" content="CaseLab: кейсы CS2, апгрейды и батл пасс. Вход через Steam.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;900&family=Manrope:wght@400;500;600;700&family=Chakra+Petch:wght@600;700&display=swap">
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 28 9v14L16 30 4 23V9z' fill='%2307060f' stroke='%2339f3ff' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body>
+<canvas id="bg3d" aria-hidden="true"></canvas>
+<script>if(location.protocol==='file:'){document.addEventListener('DOMContentLoaded',function(){document.body.innerHTML='<div style="max-width:560px;margin:12vh auto;padding:32px;border-radius:24px;background:#141028;color:#f1eefe;font:16px/1.5 system-ui;text-align:center"><h1 style="margin:0 0 12px">Сайт открыт не так</h1><p>Этот файл нельзя открывать двойным щелчком: сайту нужен сервер.</p><p>Закройте эту вкладку, откройте папку CaseLab и дважды щёлкните <b>start.bat</b>. Сайт откроется сам по адресу <b>http://localhost:3000</b>.</p></div>'})}</script>
+<div class="top"><div class="bar">
+  <a class="brand" href="#cases" aria-label="CaseLab, главная"><div class="cube" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><span>Case<em>Lab</em></span></a>
+  <nav aria-label="Разделы">
+    <a href="#cases" data-nav="cases">Кейсы</a>
+    <a href="#inventory" data-nav="inventory">Инвентарь <span class="pill" id="invCount">0</span></a>
+    <a href="#upgrade" data-nav="upgrade">Апгрейд</a>
+    <a href="#pass" data-nav="pass">Батл пасс <span class="pill lvl" id="bpLvl">0</span></a>
+    <a href="#admin" data-nav="admin" id="navAdmin" hidden>Админ</a>
+  </nav>
+  <div class="tools">
+    <div class="online" title="Игроков онлайн"><i></i><span id="online">0</span> онлайн</div>
+    <div class="bal"><span>Баланс</span><b id="bal">—</b></div>
+    <button class="icon-btn" data-act="snd" id="sndBtn" aria-label="Звук"></button>
+    <div id="acct"></div>
+  </div>
+</div></div>
+<div id="annc"></div>
+<div class="live" aria-label="Последние дропы игроков"><div class="live-lbl">● LIVE</div><div class="live-strip" id="liveStrip"></div></div>
+
+<div class="wrap">
+  <main id="view"></main>
+  <footer>
+    <p>Неофициальный фан-сайт, не связан с Valve и Steam. Деньги и предметы виртуальные: их нельзя купить, вывести или продать за реальные деньги. Картинки предметов загружаются из открытой базы CS2 (ByMykel/CSGO-API). Цены примерные, по Steam Market.</p>
+  </footer>
+</div>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+<script src="/game.js"></script>
+<script src="/app.js"></script>
+<script src="/bg.js" defer></script>
+</body>
+</html>
