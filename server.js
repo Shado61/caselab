@@ -40,7 +40,8 @@ async function loadDB(){
   if(!PG_URL){fs.mkdirSync(path.dirname(DB_FILE),{recursive:true});if(fs.existsSync(DB_FILE))DB=Object.assign(DB,JSON.parse(fs.readFileSync(DB_FILE,'utf8')));return 'файл data/db.json'}
   const {Pool}=require('pg');
   const local=/@(localhost|127\.0\.0\.1)[:/]/.test(PG_URL);
-  pool=new Pool({connectionString:PG_URL,ssl:local?false:{rejectUnauthorized:true},max:3});
+  const u=new URL(PG_URL);['sslmode','channel_binding','sslrootcert'].forEach(k=>u.searchParams.delete(k)); /* ssl is set below */
+  pool=new Pool({connectionString:u.toString(),ssl:local?false:{rejectUnauthorized:true},max:3});
   await pool.query('CREATE TABLE IF NOT EXISTS caselab_kv(k text PRIMARY KEY, v text NOT NULL)');
   const r=await pool.query('SELECT k,v FROM caselab_kv');
   for(const row of r.rows){SAVED.set(row.k,row.v);const v=JSON.parse(row.v);
