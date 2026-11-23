@@ -578,3 +578,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:rgba(
 @keyframes phFloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
 @keyframes phGlow{0%,100%{opacity:.55}50%{opacity:.9}}
 @media (prefers-reduced-motion:reduce){.cr.photo img,.cr.photo .ph-glow{animation:none}}
+
+/* official CS2 case images (transparent PNG from Steam) */
+.cr.photo.real img{-webkit-mask-image:none;mask-image:none;width:210px;height:180px;margin-top:6px;filter:drop-shadow(0 16px 22px rgba(0,0,0,.6)) drop-shadow(0 0 18px color-mix(in srgb,var(--a) 40%,transparent))}
+.banner .cr.photo.real img{width:270px;height:220px;margin-top:0}

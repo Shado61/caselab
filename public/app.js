@@ -485,6 +485,7 @@ function casePhoto(c,big){
 }
 function caseScene(c,big){
   if(CASE_PHOTO.has(c.id))return casePhoto(c,big);
+  if(c.img)return `<div class="cr photo real${big?' big':''}" style="--h:${c.hue};--a:hsl(${c.hue} 90% 60%);--dl:${-(hash(c.id)%40)/10}s" aria-hidden="true"><div class="ph-glow"></div><img src="${c.img}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></div>`;
   const d=DESIGN[c.id]||REAL_DESIGN[c.id];if(!d)return '';
   const n='sc'+(++CASE_N)+'_',a=d.a,b=d.b,meme=MEME[c.id];
   const lbl=d.t.length>8?Math.max(6,10-(d.t.length-8)*.6):10;

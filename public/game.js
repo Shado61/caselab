@@ -136,6 +136,96 @@ const D=[
   ['r~M4A4 | Tooth Fairy','p~Glock-18 | Vogue','m~XM1014 | Entombed'],
   ['p~Desert Eagle | Printstream','r~AK-47 | Legion of Anubis'],
   ['k~★ Skeleton Knife | Fade','k~★ Paracord Knife | Fade']]},
+ {id:'fever',name:"Fever Case",price:3,hue:350,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frncVtqv7MPE8JaHHCj_Dl-wk4-NtFirikURy4jiGwo2udHqVaAEjDZp3EflK7EeSMnMs4w",t:[
+  ["r~M4A4 | Choppa","m~MAG-7 | Resupply","s~SSG 08 | Memorial","p~P2000 | Sure Grip","p~USP-S | PC-GRN","m~MP9 | Nexus","m~XM1014 | Mockingbird"],
+  ["p~Desert Eagle | Serpent Strike","r~Zeus x27 | Tosai","m~Nova | Rising Sun","r~Galil AR | Control","m~P90 | Wave Breaker"],
+  ["r~AK-47 | Searing Rage","p~Glock-18 | Shinobu","m~UMP-45 | K.O. Factory"],
+  ["r~FAMAS | Bad Trip","s~AWP | Printstream"],
+  ["k~★ Nomad Knife | Doppler","k~★ Skeleton Knife | Doppler","k~★ Paracord Knife | Doppler","k~★ Survival Knife | Doppler"]]},
+ {id:'gallery',name:"Gallery Case",price:3,hue:275,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frnYVuPD5baE6IfTFCmSRme0j5eU5SXrjkRwmt2rWnoqhdnjEPQQiDpRxTflK7EePRV2-Kg",t:[
+  ["p~USP-S | 27","p~Desert Eagle | Calligraffiti","m~MP5-SD | Statics","r~AUG | Luxe Trim","m~M249 | Hypnosis","p~R8 Revolver | Tango","s~SCAR-20 | Trail Blazer"],
+  ["r~M4A4 | Turbine","p~Dual Berettas | Hydro Strike","m~MAC-10 | Saibā Oni","m~P90 | Randy Rush","s~SSG 08 | Rapid Transit"],
+  ["r~AK-47 | The Outsiders","p~P250 | Epicenter","m~UMP-45 | Neo-Noir"],
+  ["p~Glock-18 | Gold Toof","r~M4A1-S | Vaporwave"],
+  ["k~★ Kukri Knife | Fade"]]},
+ {id:'recoil',name:"Recoil Case",price:3,hue:30,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frnMVu6b-avA-JqSSCjSWwuhz47U9TCzlxh9yt2WGnNqgIi-fbgUkWMNxFPlK7EdIJF6a2Q",t:[
+  ["r~FAMAS | Meow 36","r~Galil AR | Destroyer","r~M4A4 | Poly Mag","m~MAC-10 | Monkeyflage","m~Negev | Drop Me","m~UMP-45 | Roadblock","p~Glock-18 | Winterized"],
+  ["p~R8 Revolver | Crazy 8","m~M249 | Downtown","r~SG 553 | Dragon Tech","m~P90 | Vent Rush","p~Dual Berettas | Flora Carnivora"],
+  ["r~AK-47 | Ice Coaled","p~P250 | Visions","m~Sawed-Off | Kiss♥Love"],
+  ["p~USP-S | Printstream","s~AWP | Chromatic Aberration"],
+  ["g~★ Specialist Gloves | Marble Fade","g~★ Moto Gloves | 3rd Commando Company","g~★ Sport Gloves | Scarlet Shamagh","g~★ Driver Gloves | Rezan the Red"]]},
+ {id:'snakebite',name:"Snakebite Case",price:3,hue:95,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3oVvvT4bfI4dvTLCGTCmLl16ec7TX_mk08k42iHwtqscy-WPVUmCZJ4R_lK7Ed8Q6OYtw",t:[
+  ["r~SG 553 | Heavy Metal","p~Glock-18 | Clear Polymer","m~M249 | O.S.I.P.R.","p~CZ75-Auto | Circaetus","m~UMP-45 | Oscillator","p~R8 Revolver | Junk Yard","m~Nova | Windblown"],
+  ["p~P250 | Cyber Shell","m~Negev | dev_texture","m~MAC-10 | Button Masher","p~Desert Eagle | Trigger Discipline","r~AK-47 | Slate"],
+  ["m~MP9 | Food Chain","m~XM1014 | XOXO","r~Galil AR | Chromatic Aberration"],
+  ["p~USP-S | The Traitor","r~M4A4 | In Living Color"],
+  ["g~★ Specialist Gloves | Marble Fade","g~★ Moto Gloves | 3rd Commando Company","g~★ Sport Gloves | Scarlet Shamagh","g~★ Driver Gloves | Rezan the Red"]]},
+ {id:'riptide',name:"Operation Riptide Case",price:3,hue:200,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3sVtvD2O_Q9dqfEXTWSlepz4bA5THnikx915z6BytmuIHiXaAdyDpEhTflK7EdW-TaRMg",t:[
+  ["r~AUG | Plague","p~Dual Berettas | Tread","s~G3SG1 | Keeping Tabs","m~MP7 | Guerrilla","m~PP-Bizon | Lumen","p~USP-S | Black Lotus","m~XM1014 | Watchdog"],
+  ["m~MAG-7 | BI83 Spectrum","r~FAMAS | ZX Spectron","p~Five-SeveN | Boost Protocol","m~MP9 | Mount Fuji","r~M4A4 | Spider Lily"],
+  ["m~MAC-10 | Toybox","p~Glock-18 | Snack Attack","s~SSG 08 | Turbo Peek"],
+  ["r~AK-47 | Leet Museo","p~Desert Eagle | Ocean Drive"],
+  ["k~★ Shadow Daggers | Gamma Doppler","k~★ Falchion Knife | Gamma Doppler","k~★ Huntsman Knife | Gamma Doppler","k~★ Bowie Knife | Gamma Doppler"]]},
+ {id:'brokenfang',name:"Operation Broken Fang Case",price:3,hue:15,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3UVu6P-MPQ0dKbCVzLGx7wgtbM6S3jhw0V25m-EnNj7JS7GaQ4nD8QiRflK7EfH0YGFHg",t:[
+  ["p~CZ75-Auto | Vendetta","m~P90 | Cocoa Rampage","s~G3SG1 | Digital Mesh","r~Galil AR | Vandal","p~P250 | Contaminant","m~M249 | Deep Relief","m~MP5-SD | Condition Zero"],
+  ["s~AWP | Exoskeleton","p~Dual Berettas | Dezastre","m~Nova | Clear Polymer","s~SSG 08 | Parallax","m~UMP-45 | Gold Bismuth"],
+  ["p~Five-SeveN | Fairy Tale","r~M4A4 | Cyber Security","p~USP-S | Monster Mashup"],
+  ["r~M4A1-S | Printstream","p~Glock-18 | Neo-Noir"],
+  ["g~★ Specialist Gloves | Marble Fade","g~★ Moto Gloves | 3rd Commando Company","g~★ Sport Gloves | Scarlet Shamagh","g~★ Driver Gloves | Rezan the Red"]]},
+ {id:'prisma2',name:"Prisma 2 Case",price:3,hue:290,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3cV6vT9avBvefWWDDGTxbZ14rhsTX7qkE90sDiHwt2pdC-TblJ2DsB1QPlK7Ee9riHKAA",t:[
+  ["r~AUG | Tom Cat","s~AWP | Capillary","p~CZ75-Auto | Distressed","p~Desert Eagle | Blue Ply","m~MP5-SD | Desert Strike","m~Negev | Prototype","p~R8 Revolver | Bone Forged"],
+  ["p~P2000 | Acid Etched","m~Sawed-Off | Apocalypto","s~SCAR-20 | Enforcer","r~SG 553 | Darkwing","s~SSG 08 | Fever Dream"],
+  ["r~AK-47 | Phantom Disruptor","m~MAC-10 | Disco Tech","m~MAG-7 | Justice"],
+  ["r~M4A1-S | Player Two","p~Glock-18 | Bullet Queen"],
+  ["k~★ Ursus Knife | Doppler","k~★ Navaja Knife | Doppler","k~★ Talon Knife | Doppler","k~★ Stiletto Knife | Doppler"]]},
+ {id:'cs20',name:"CS20 Case",price:3,hue:45,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3YVvfD9aqVveKaQDDKSl7134bg_HH3hlBty6z7Vn9v6eXmeZgBxWJd0EflK7Efs4hZiKQ",t:[
+  ["p~Dual Berettas | Elite 1.6","p~Tec-9 | Flash Out","m~MAC-10 | Classic Crate","m~MAG-7 | Popdog","s~SCAR-20 | Assault","r~FAMAS | Decommissioned","p~Glock-18 | Sacrifice"],
+  ["m~M249 | Aztec","m~MP5-SD | Agent","p~Five-SeveN | Buddy","p~P250 | Inferno","m~UMP-45 | Plastique"],
+  ["m~MP9 | Hydra","m~P90 | Nostalgia","r~AUG | Death by Puppy"],
+  ["s~AWP | Wildfire","r~FAMAS | Commemoration"],
+  ["k~★ Classic Knife | Fade"]]},
+ {id:'clutch',name:"Clutch Case",price:3,hue:215,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frHsVtqr8a_dsdKTAWDWVxLgjsrAwHSvgwEQk4m-ByYuqIC2eO1VyD5QiR_lK7EcxQQPYQA",t:[
+  ["m~PP-Bizon | Night Riot","p~Five-SeveN | Flame Test","m~MP9 | Black Sand","p~P2000 | Urban Hazard","p~R8 Revolver | Grip","r~SG 553 | Aloha","m~XM1014 | Oxide Blaze"],
+  ["p~Glock-18 | Moonrise","m~Negev | Lionfish","m~Nova | Wild Six","m~MAG-7 | SWAG-7","m~UMP-45 | Arctic Wolf"],
+  ["r~AUG | Stymphalian","s~AWP | Mortis","p~USP-S | Cortex"],
+  ["r~M4A4 | Neo-Noir","m~MP7 | Bloodsport"],
+  ["g~★ Specialist Gloves | Fade","g~★ Sport Gloves | Vice","g~★ Hydra Gloves | Emerald","g~★ Moto Gloves | Polygon"]]},
+ {id:'dangerzone',name:"Danger Zone Case",price:3,hue:25,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3MVv_H4a6FucPPBWjDIkbdz4rg4Syyyxxsi5mzRntuvJCqVbwAgDZBwRPlK7EcZJ5GkQA",t:[
+  ["m~MP9 | Modest Threat","p~Glock-18 | Oxide Blaze","m~Nova | Wood Fired","r~M4A4 | Magnesium","m~Sawed-Off | Black Sand","r~SG 553 | Danger Close","p~Tec-9 | Fubar"],
+  ["s~G3SG1 | Scavenger","r~Galil AR | Signal","m~MAC-10 | Pipe Down","p~P250 | Nevermore","p~USP-S | Flashback"],
+  ["m~UMP-45 | Momentum","p~Desert Eagle | Mecha Industries","m~MP5-SD | Phosphor"],
+  ["r~AK-47 | Asiimov","s~AWP | Neo-Noir"],
+  ["k~★ Talon Knife | Fade","k~★ Ursus Knife | Fade","k~★ Navaja Knife | Fade","k~★ Stiletto Knife | Fade"]]},
+ {id:'horizon',name:"Horizon Case",price:3,hue:300,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3IV6vSrbfw8eaiWCjWVkewgseM9TXyxl0wi6mSHn9-tIHqUbg5yDpEmEPlK7EcXFmSLsw",t:[
+  ["r~AUG | Amber Slipstream","p~Dual Berettas | Shred","p~Glock-18 | Warhawk","m~MP9 | Capillary","m~P90 | Traction","p~R8 Revolver | Survivalist","p~Tec-9 | Snek-9"],
+  ["p~CZ75-Auto | Eco","s~G3SG1 | High Seas","m~Nova | Toy Soldier","s~AWP | PAW","m~MP7 | Powercore"],
+  ["r~M4A1-S | Nightmare","m~Sawed-Off | Devourer","r~FAMAS | Eye of Athena"],
+  ["r~AK-47 | Neon Rider","p~Desert Eagle | Code Red"],
+  ["k~★ Talon Knife | Fade","k~★ Ursus Knife | Fade","k~★ Navaja Knife | Fade","k~★ Stiletto Knife | Fade"]]},
+ {id:'chroma2',name:"Chroma 2 Case",price:3,hue:200,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fqmwOuKD2PqI6caDBWDeUkO8uteM9SnDglklw6miEn9j6IHKfblNxA5pxW6dU5UH4LtBe",t:[
+  ["r~AK-47 | Elite Build","m~MP7 | Armor Core","p~Desert Eagle | Bronze Deco","p~P250 | Valence","m~Negev | Man-o'-war","m~Sawed-Off | Origami"],
+  ["s~AWP | Worm God","m~MAG-7 | Heat","p~CZ75-Auto | Pole Position","m~UMP-45 | Grand Prix"],
+  ["p~Five-SeveN | Monkey Business","r~Galil AR | Eco","r~FAMAS | Djinn"],
+  ["r~M4A1-S | Hyper Beast","m~MAC-10 | Neon Rider"],
+  ["k~★ Flip Knife | Doppler","k~★ M9 Bayonet | Doppler","k~★ Karambit | Doppler","k~★ Gut Knife | Doppler"]]},
+ {id:'gamma2',name:"Gamma 2 Case",price:3,hue:140,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bjz61TqQCKj0JfipHMN7aX2bfM9eaPDXT7Glbx1s7Y8HHHnw0sltWXSmYmqcH-UaAU-Sswn_16VNj0",t:[
+  ["p~CZ75-Auto | Imprint","p~Five-SeveN | Scumbria","s~G3SG1 | Ventilator","m~Negev | Dazzle","m~P90 | Grim","m~UMP-45 | Briefing","m~XM1014 | Slipstream"],
+  ["p~Desert Eagle | Directive","p~Glock-18 | Weasel","m~MAG-7 | Petroglyph","s~SCAR-20 | Powercore","r~SG 553 | Triarch"],
+  ["r~AUG | Syd Mead","m~MP9 | Airlock","p~Tec-9 | Fuel Injector"],
+  ["r~AK-47 | Neon Revolution","r~FAMAS | Roll Cage"],
+  ["k~★ Gut Knife | Gamma Doppler","k~★ M9 Bayonet | Gamma Doppler","k~★ Karambit | Gamma Doppler","k~★ Bayonet | Gamma Doppler"]]},
+ {id:'spectrum2',name:"Spectrum 2 Case",price:3,hue:265,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frHoVu6D7PaA0JaDACjKUwOom47VrTSzrw0Vx4W_Sydz9JC7FZgckCZYjRPlK7EcPuDAQzw",t:[
+  ["m~Sawed-Off | Morris","r~AUG | Triqua","s~G3SG1 | Hunter","p~Glock-18 | Off World","m~MAC-10 | Oceanic","p~Tec-9 | Cracked Opal","s~SCAR-20 | Jungle Slipstream"],
+  ["m~MP9 | Goo","r~SG 553 | Phantom","p~CZ75-Auto | Tacticat","m~UMP-45 | Exposure","m~XM1014 | Ziggy"],
+  ["m~PP-Bizon | High Roller","r~M4A1-S | Leaded Glass","p~R8 Revolver | Llama Cannon"],
+  ["r~AK-47 | The Empress","p~P250 | See Ya Later"],
+  ["k~★ Huntsman Knife | Doppler","k~★ Falchion Knife | Doppler","k~★ Butterfly Knife | Doppler","k~★ Shadow Daggers | Doppler"]]},
+ {id:'weapon1',name:"CS:GO Weapon Case",price:3,hue:35,cat:'real',icon:'star',img:"https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bji61XxRCKg0MSz_nUDvPb-OPFvdKTFDzbAkbp16bY5Gn6wkx9ysj7Xntf9IC6WZgA-Sswnnj45WXo",t:[
+  ["m~MP7 | Skulls","r~AUG | Wings","r~SG 553 | Ultraviolet"],
+  ["p~Glock-18 | Dragon Tattoo","p~USP-S | Dark Water","r~M4A1-S | Dark Water"],
+  ["r~AK-47 | Case Hardened","p~Desert Eagle | Hypnotic"],
+  ["s~AWP | Lightning Strike"],
+  ["k~★ Flip Knife | Fade","k~★ Gut Knife | Fade","k~★ M9 Bayonet | Fade","k~★ Karambit | Fade"]]},
  {id:'rushb',name:"Rush B, не стоп",price:5,hue:14,cat:'meme',icon:'star',t:[
   ["r~AK-47 | Uncharted","p~Glock-18 | Winterized","r~M4A1-S | Mud-Spec","m~MAG-7 | Bulldozer"],
   ["r~AK-47 | Rat Rod","r~AK-47 | Ice Coaled","p~Desert Eagle | Mecha Industries"],
@@ -349,7 +439,8 @@ const PRICE={
  '★ Falchion Knife | Fade':250,'★ Huntsman Knife | Tiger Tooth':250,'★ Stiletto Knife | Doppler':600,'★ Moto Gloves | Smoke Out':200,
  '★ Hand Wraps | Badlands':150,'★ Hydra Gloves | Rattler':120,'★ Bloodhound Gloves | Guerrilla':150,'AK-47 | Uncharted':2,'M4A4 | Global Offensive':6,
  'Desert Eagle | Night Heist':25,'USP-S | Black Lotus':10,'AWP | Silk Tiger':15,'M4A1-S | Nightmare':4,'AK-47 | Rat Rod':6,'Glock-18 | Winterized':1,
- 'AWP | Worm God':3,'P90 | Emerald Dragon':50,'MAG-7 | Bulldozer':2,'Negev | Mjölnir':70,'Sawed-Off | The Kraken':8
+ 'AWP | Worm God':3,'P90 | Emerald Dragon':50,'MAG-7 | Bulldozer':2,'Negev | Mjölnir':70,'Sawed-Off | The Kraken':8,
+ "M4A4 | Choppa":0.55,"MAG-7 | Resupply":0.28,"SSG 08 | Memorial":0.28,"P2000 | Sure Grip":0.39,"USP-S | PC-GRN":1.21,"MP9 | Nexus":0.54,"XM1014 | Mockingbird":0.46,"Desert Eagle | Serpent Strike":1.74,"Zeus x27 | Tosai":1.07,"Nova | Rising Sun":3.14,"Galil AR | Control":0.8,"P90 | Wave Breaker":1.63,"AK-47 | Searing Rage":22.05,"Glock-18 | Shinobu":9.52,"UMP-45 | K.O. Factory":11.29,"FAMAS | Bad Trip":55.2,"AWP | Printstream":143,"★ Nomad Knife | Doppler":721,"★ Skeleton Knife | Doppler":826,"★ Paracord Knife | Doppler":1208,"★ Survival Knife | Doppler":1322,"USP-S | 27":0.78,"Desert Eagle | Calligraffiti":0.88,"MP5-SD | Statics":0.41,"AUG | Luxe Trim":0.13,"M249 | Hypnosis":0.59,"R8 Revolver | Tango":0.54,"SCAR-20 | Trail Blazer":0.15,"M4A4 | Turbine":2.17,"Dual Berettas | Hydro Strike":2.83,"MAC-10 | Saibā Oni":1.2,"P90 | Randy Rush":2.34,"SSG 08 | Rapid Transit":0.97,"AK-47 | The Outsiders":20.08,"P250 | Epicenter":5.25,"UMP-45 | Neo-Noir":10.69,"Glock-18 | Gold Toof":71.52,"M4A1-S | Vaporwave":69.0,"FAMAS | Meow 36":0.17,"Galil AR | Destroyer":0.49,"M4A4 | Poly Mag":0.59,"MAC-10 | Monkeyflage":0.61,"Negev | Drop Me":0.13,"UMP-45 | Roadblock":0.56,"R8 Revolver | Crazy 8":2.7,"M249 | Downtown":1.7,"SG 553 | Dragon Tech":2.12,"P90 | Vent Rush":1.0,"Dual Berettas | Flora Carnivora":2.85,"P250 | Visions":8.61,"Sawed-Off | Kiss♥Love":6.58,"AWP | Chromatic Aberration":105,"★ Moto Gloves | 3rd Commando Company":198,"★ Sport Gloves | Scarlet Shamagh":274,"★ Driver Gloves | Rezan the Red":320,"SG 553 | Heavy Metal":0.4,"Glock-18 | Clear Polymer":0.31,"M249 | O.S.I.P.R.":0.17,"CZ75-Auto | Circaetus":0.33,"UMP-45 | Oscillator":0.18,"R8 Revolver | Junk Yard":0.45,"Nova | Windblown":0.56,"P250 | Cyber Shell":0.86,"Negev | dev_texture":1.71,"MAC-10 | Button Masher":2.99,"Desert Eagle | Trigger Discipline":1.77,"XM1014 | XOXO":9.42,"Galil AR | Chromatic Aberration":12.19,"M4A4 | In Living Color":114,"AUG | Plague":0.21,"Dual Berettas | Tread":0.12,"G3SG1 | Keeping Tabs":0.54,"MP7 | Guerrilla":0.25,"PP-Bizon | Lumen":0.35,"XM1014 | Watchdog":0.16,"MAG-7 | BI83 Spectrum":1.02,"FAMAS | ZX Spectron":2.91,"Five-SeveN | Boost Protocol":2.66,"MP9 | Mount Fuji":2.55,"M4A4 | Spider Lily":5.79,"MAC-10 | Toybox":11.53,"★ Shadow Daggers | Gamma Doppler":852,"★ Falchion Knife | Gamma Doppler":908,"★ Huntsman Knife | Gamma Doppler":1004,"CZ75-Auto | Vendetta":0.17,"P90 | Cocoa Rampage":0.54,"G3SG1 | Digital Mesh":0.21,"Galil AR | Vandal":0.17,"P250 | Contaminant":0.35,"M249 | Deep Relief":0.22,"MP5-SD | Condition Zero":0.42,"Dual Berettas | Dezastre":2.62,"Nova | Clear Polymer":1.41,"SSG 08 | Parallax":1.18,"Five-SeveN | Fairy Tale":9.67,"M4A4 | Cyber Security":19.43,"USP-S | Monster Mashup":25.82,"AUG | Tom Cat":0.52,"AWP | Capillary":1.02,"CZ75-Auto | Distressed":0.57,"Desert Eagle | Blue Ply":0.26,"MP5-SD | Desert Strike":0.45,"Negev | Prototype":0.3,"R8 Revolver | Bone Forged":0.21,"P2000 | Acid Etched":1.51,"Sawed-Off | Apocalypto":1.32,"SCAR-20 | Enforcer":1.74,"SG 553 | Darkwing":2.84,"SSG 08 | Fever Dream":2.28,"MAG-7 | Justice":10.62,"Dual Berettas | Elite 1.6":0.17,"Tec-9 | Flash Out":0.53,"MAC-10 | Classic Crate":0.47,"MAG-7 | Popdog":0.33,"SCAR-20 | Assault":0.28,"FAMAS | Decommissioned":0.56,"Glock-18 | Sacrifice":1.1,"M249 | Aztec":1.79,"MP5-SD | Agent":0.79,"Five-SeveN | Buddy":2.11,"P250 | Inferno":1.61,"UMP-45 | Plastique":2.37,"MP9 | Hydra":9.86,"P90 | Nostalgia":8.42,"AUG | Death by Puppy":11.58,"FAMAS | Commemoration":54.0,"PP-Bizon | Night Riot":0.27,"Five-SeveN | Flame Test":0.35,"MP9 | Black Sand":0.52,"P2000 | Urban Hazard":0.37,"R8 Revolver | Grip":0.26,"SG 553 | Aloha":0.49,"XM1014 | Oxide Blaze":0.29,"Negev | Lionfish":3.13,"Nova | Wild Six":2.04,"MAG-7 | SWAG-7":2.3,"UMP-45 | Arctic Wolf":1.08,"AUG | Stymphalian":9.54,"★ Moto Gloves | Polygon":183,"MP9 | Modest Threat":0.17,"Glock-18 | Oxide Blaze":0.89,"Nova | Wood Fired":0.46,"M4A4 | Magnesium":1.1,"Sawed-Off | Black Sand":0.55,"SG 553 | Danger Close":0.49,"Tec-9 | Fubar":0.23,"G3SG1 | Scavenger":1.81,"Galil AR | Signal":1.41,"MAC-10 | Pipe Down":1.57,"P250 | Nevermore":2.43,"USP-S | Flashback":3.82,"UMP-45 | Momentum":14.42,"MP5-SD | Phosphor":5.56,"AUG | Amber Slipstream":0.34,"Dual Berettas | Shred":0.29,"Glock-18 | Warhawk":0.77,"MP9 | Capillary":0.49,"P90 | Traction":0.15,"R8 Revolver | Survivalist":0.58,"Tec-9 | Snek-9":0.32,"CZ75-Auto | Eco":1.49,"G3SG1 | High Seas":1.9,"Nova | Toy Soldier":1.05,"AWP | PAW":2.23,"MP7 | Powercore":2.92,"Sawed-Off | Devourer":12.3,"FAMAS | Eye of Athena":11.35,"AK-47 | Neon Rider":69.84,"MP7 | Armor Core":0.51,"Desert Eagle | Bronze Deco":0.46,"P250 | Valence":0.58,"Negev | Man-o'-war":0.59,"Sawed-Off | Origami":0.45,"MAG-7 | Heat":1.22,"CZ75-Auto | Pole Position":2.78,"UMP-45 | Grand Prix":2.85,"Five-SeveN | Monkey Business":10.35,"Galil AR | Eco":13.69,"FAMAS | Djinn":6.93,"CZ75-Auto | Imprint":0.23,"Five-SeveN | Scumbria":0.31,"G3SG1 | Ventilator":0.31,"Negev | Dazzle":0.13,"P90 | Grim":0.3,"UMP-45 | Briefing":0.2,"XM1014 | Slipstream":0.14,"Desert Eagle | Directive":5.76,"Glock-18 | Weasel":5.03,"MAG-7 | Petroglyph":1.23,"SCAR-20 | Powercore":1.76,"SG 553 | Triarch":1.48,"AUG | Syd Mead":6.16,"MP9 | Airlock":9.44,"★ Gut Knife | Gamma Doppler":499,"★ M9 Bayonet | Gamma Doppler":1177,"Sawed-Off | Morris":0.37,"AUG | Triqua":0.28,"G3SG1 | Hunter":0.58,"Glock-18 | Off World":1.02,"MAC-10 | Oceanic":0.18,"Tec-9 | Cracked Opal":0.51,"SCAR-20 | Jungle Slipstream":0.49,"MP9 | Goo":2.97,"SG 553 | Phantom":1.89,"CZ75-Auto | Tacticat":2.85,"UMP-45 | Exposure":1.14,"XM1014 | Ziggy":2.32,"PP-Bizon | High Roller":11.82,"M4A1-S | Leaded Glass":22.7,"R8 Revolver | Llama Cannon":10.63,"★ Huntsman Knife | Doppler":1200,"★ Falchion Knife | Doppler":1286,"MP7 | Skulls":0.4,"AUG | Wings":0.39,"SG 553 | Ultraviolet":0.54,"USP-S | Dark Water":3.97,"M4A1-S | Dark Water":3.17,"★ Flip Knife | Fade":328,"★ Gut Knife | Fade":435,"★ M9 Bayonet | Fade":699
 };
 /* old names saved in inventories before the rename */
 const RENAME={'MP9 | Gold Bismuth':'UMP-45 | Gold Bismuth','★ Karambit | Night Stripe':'★ Karambit | Night','★ Bowie Knife | Night Stripe':'★ Bowie Knife | Night'};
