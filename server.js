@@ -241,16 +241,18 @@ function tokens(line){const out=[];const re=/"([^"]*)"|(\S+)/g;let m;while((m=re
 function findPlayer(q){
   if(!q)throw new Error('укажи игрока');
   if(DB.users[q])return DB.users[q];
+  const url=/steamcommunity\.com\/profiles\/(\d{17})/.exec(q);if(url&&DB.users[url[1]])return DB.users[url[1]];
   const all=Object.values(DB.users),l=q.toLowerCase();
   const ex=all.filter(x=>x.name.toLowerCase()===l);if(ex.length===1)return ex[0];
   const part=all.filter(x=>x.name.toLowerCase().includes(l));
   if(part.length===1)return part[0];
   if(part.length>1)throw new Error(`несколько игроков: ${part.slice(0,5).map(x=>x.name+' ('+x.steamid+')').join(', ')}. Укажи SteamID`);
-  throw new Error('игрок не найден: '+q);
+  throw new Error('игрок не найден: '+q+'. Напиши часть ника, SteamID или «я». Ник с пробелами бери в кавычки. Список: /players');
 }
 function amount(v){const n=Number(String(v||'').replace(/[$,\s]/g,''));if(!isFinite(n)||n<0||n>1e7)throw new Error('сумма от 0 до 10 000 000');return r2(n)}
 function runCmd(admin,line){
   const t=tokens(line.replace(/^\//,'')),cmd=(t.shift()||'').toLowerCase(),m=v=>'$'+v.toLocaleString('en-US');
+  if(t[0]&&['я','me','себе','мне'].includes(t[0].toLowerCase()))t[0]=admin.steamid; /* shortcut for the admin themself */
   switch(cmd){
     case 'help':return HELP.map(h=>h[0]+' — '+h[1]).join('\n');
     case 'players':{const t0=now();const l=Object.values(DB.users).filter(x=>t[0]!=='online'||t0-(x.lastSeen||0)<70e3);return l.length?l.map(x=>`${x.name} · ${x.steamid} · ${m(x.bal)}${x.banned?' · БАН':''}`).join('\n'):'нет игроков'}
