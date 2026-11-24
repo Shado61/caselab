@@ -587,6 +587,7 @@ function updateHeader(){
     ?`<a class="btn steam sm" href="/auth/steam">${STEAM_ICON}<span>Войти через Steam</span></a>`
     :`<button class="me-chip" data-act="menu">${S.avatar?`<img src="${esc(S.avatar)}" alt="" referrerpolicy="no-referrer">`:'<span class="ava0">'+esc(S.name[0]||'?')+'</span>'}<span class="nm">${esc(S.name)}</span>${S.admin?'<span class="adm">ADMIN</span>':''}</button>`;
   $('#navAdmin').hidden=!S.admin&&!(!S.guest&&!OWNER_SET);
+  $('#navAdmin').innerHTML='Админ'+(S.admin&&(S.wdAll||ADM.wdPending)?` <span class="pill wd" title="Заявки на вывод">${S.wdAll||ADM.wdPending}</span>`:'');
   document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===route().page));
   $('#annc').innerHTML=ANNOUNCE?`<div class="annc">📢 ${esc(ANNOUNCE)}</div>`:'';
 }
@@ -624,7 +625,7 @@ function render(){
   else if(r.page==='pass')v.innerHTML=viewPass();
   else if(r.page==='admin'){v.innerHTML=viewAdmin();adminLoad()}
   else if(r.page==='market'){v.innerHTML=viewMarket();marketLoad()}
-  else v.innerHTML=viewInventory();
+  else{v.innerHTML=viewInventory();wdLoad()}
   updateHeader();
 }
 window.addEventListener('hashchange',()=>{closeModal();render();if(!busy)window.scrollTo(0,0);payHash()});
@@ -688,8 +689,8 @@ function viewInventory(){
     <div class="inv-actions"><select class="sel" data-act="sort" aria-label="Сортировка">
       <option value="new" ${mode==='new'?'selected':''}>Сначала новые</option><option value="price" ${mode==='price'?'selected':''}>Сначала дорогие</option><option value="rar" ${mode==='rar'?'selected':''}>По редкости</option></select>
       <button class="btn sm ${sellAllArmed?'danger':''}" data-act="sellall" ${S.inv.length?'':'disabled'}>${sellAllArmed?'Точно продать всё?':'Продать всё за '+money(total)}</button></div></div>`;
-  if(!S.inv.length)return head+`<div class="empty glass"><div>Пока пусто. Открой первый кейс.</div><a class="btn primary" href="#cases">К кейсам</a></div>`;
-  return head+`<div class="items">${list.map(it=>itemCard(it,`<button class="btn sm" style="margin-top:8px" data-act="sell" data-uid="${it.uid}">Продать</button>`)).join('')}</div>`;
+  if(!S.inv.length)return head+wdNote()+`<div class="empty glass"><div>Пока пусто. Открой кейс или купи скин в маркете.</div><div class="btns"><a class="btn primary" href="#cases">К кейсам</a><a class="btn" href="#market">В маркет</a></div></div>`+wdListHTML();
+  return head+wdNote()+`<div class="items">${list.map(it=>itemCard(it,`<div class="inv-btns"><button class="btn sm" data-act="sell" data-uid="${it.uid}">Продать</button><button class="btn sm primary" data-act="wd" data-uid="${it.uid}">Вывести</button></div>`)).join('')}</div>`+wdListHTML();
 }
 function loginWall(t){return `<section class="empty glass" style="padding:60px 20px"><h1 class="h2-3d">${t}</h1><div>Войди через Steam, чтобы видеть свой аккаунт.</div><a class="btn steam" href="/auth/steam">${STEAM_ICON}Войти через Steam</a></section>`}
 
@@ -922,7 +923,7 @@ async function upgo(){
 }
 
 /* ---------- admin panel (the server checks the owner on every request) ---------- */
-const ADM={q:'',users:[],sel:null,log:[],out:[],hist:[],hi:-1};
+const ADM={q:'',users:[],sel:null,log:[],out:[],hist:[],hi:-1,wd:[],wdPending:0,wdTab:'pending'};
 const ADMIN_HELP=[
  ['/give <игрок> <сумма>','выдать деньги'],['/take <игрок> <сумма>','забрать деньги'],['/setbal <игрок> <сумма>','установить баланс'],
  ['/giveall <сумма>','деньги всем игрокам'],['/giveitem <игрок> <скин> [st]','выдать скин'],['/removeitem <игрок> <uid>','забрать предмет'],
@@ -942,6 +943,7 @@ function viewAdmin(){
   return `<section class="adm-head glass"><div><div class="kick3d">Только для владельца</div><h1 class="h2-3d" style="font-size:32px">Админ-панель</h1>
       <small>Все действия выполняет сервер и записывает в журнал. У других игроков этих команд нет.</small></div>
       <div class="adm-stats" id="admStats"></div></section>
+  <section class="glass adm-box" id="admWd">${admWdHTML()}</section>
   <section class="adm-grid">
     <div class="glass adm-box"><div class="sec-h"><h2>Игроки</h2><input class="sel" data-act="admq" placeholder="Имя или SteamID" value="${esc(ADM.q)}"></div>
       <div class="adm-users" id="admUsers">${admUsersHTML()}</div></div>
@@ -983,11 +985,11 @@ function admLogHTML(){return ADM.log.map(l=>`<div class="lrow"><span>${new Date(
 async function adminLoad(){
   if(!S.admin)return;
   try{
-    const [u,l]=await Promise.all([api('/api/admin/users?q='+encodeURIComponent(ADM.q)),api('/api/admin/log')]);
-    ADM.users=u.users;ADM.log=l.log;
+    const [u,l,w]=await Promise.all([api('/api/admin/users?q='+encodeURIComponent(ADM.q)),api('/api/admin/log'),api('/api/admin/withdrawals?status='+ADM.wdTab)]);
+    ADM.users=u.users;ADM.log=l.log;ADM.wd=w.list;ADM.wdPending=w.pending;
     if(ADM.sel){const r=await api('/api/admin/user?id='+ADM.sel.steamid).catch(()=>null);ADM.sel=r?r.user:null}
     const set=(id,h)=>{const e=$(id);if(e)e.innerHTML=h};
-    set('#admUsers',admUsersHTML());set('#admUser',admUserHTML(ADM.sel));set('#admLog',admLogHTML());
+    set('#admWd',admWdHTML());set('#admUsers',admUsersHTML());set('#admUser',admUserHTML(ADM.sel));set('#admLog',admLogHTML());
     const tot=ADM.users.reduce((a,b)=>a+b.bal,0);
     set('#admStats',`<div><span>Игроков</span><b>${ADM.users.length}</b></div><div><span>Онлайн</span><b>${ADM.users.filter(x=>x.online).length}</b></div><div><span>Денег у игроков</span><b>${money(tot)}</b></div>`);
   }catch(e){toast(e.message)}
@@ -1094,7 +1096,7 @@ function paintDeposit(){
     <label class="dep-amt"><span>Сумма пополнения, $</span><input type="number" inputmode="decimal" min="${c.min}" max="${c.max}" step="0.01" value="${esc(DEP.amount)}" data-act="damt" aria-describedby="depSum"></label>
     <div class="dep-chips">${[1,5,10,25,50,100].filter(v=>v>=c.min&&v<=c.max).map(v=>`<button class="tab ${Number(DEP.amount)===v?'on':''}" data-act="dchip" data-v="${v}">$${v}</button>`).join('')}</div>
     <div id="depSum">${s.html}</div>
-    <label class="dep-agree"><input type="checkbox" data-act="dagree" ${DEP.agree?'checked':''}><span>Мне есть 18 лет. Я понимаю, что предметы на сайте виртуальные: их нельзя вывести в Steam или обменять обратно на деньги, а пополнение не возвращается.</span></label>
+    <label class="dep-agree"><input type="checkbox" data-act="dagree" ${DEP.agree?'checked':''}><span>Мне есть 18 лет. Я понимаю, что пополнение не возвращается деньгами, а предметы выводятся в Steam вручную в течение 2 суток.</span></label>
     <div class="btns" style="margin-top:14px"><button class="btn primary" data-act="dgo" id="depGo" ${s.ok&&DEP.agree&&!DEP.sending?'':'disabled'}>${DEP.sending?'Создаём платёж…':'Перейти к оплате'}</button><button class="btn" data-act="close">Отмена</button></div>
     <p class="hint" style="margin-top:10px">Оплата проходит на защищённой странице платёжной системы, данные карты сайт не видит. Деньги зачисляются автоматически, обычно за минуту.</p>
     <div id="depHist">${depHistHTML()}</div></div></div>`;
@@ -1130,6 +1132,60 @@ async function payHash(){
     setTimeout(tick,3000);
   };
   tick();
+}
+
+/* ---------- withdrawals to Steam ---------- */
+const WD={list:null};
+const TRADE_HELP='https://steamcommunity.com/my/tradeoffers/privacy#trade_offer_access_url';
+const WD_ST={pending:['В очереди','wd-p'],sent:['Выведен','wd-s'],rejected:['Отклонён','wd-r']};
+function wdNote(){return `<div class="wd-note glass">📦 Любой скин из инвентаря, в том числе купленный в маркете, можно вывести в Steam. <b>Вывод занимает до 2 суток.</b></div>`}
+function wdListHTML(){
+  if(!WD.list||!WD.list.length)return '';
+  return `<h2 class="wd-h">Мои выводы</h2><div class="wd-list">${WD.list.map(w=>{const [n,c]=WD_ST[w.status]||[w.status,''];const [a,b]=split(w.item.name);
+    return `<div class="wd-row" style="--rc:${RAR[w.item.rar].color}"><span class="wd-it"><b>${w.item.st?'StatTrak™ ':''}${esc(a)}${b?' | '+esc(b):''}</b><small>${w.item.wear||''} · ${money(w.item.price)} · ${new Date(w.ts).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</small></span>
+      <span class="wd-st ${c}">${n}${w.status==='pending'?' · до 2 суток':''}${w.reason?' · '+esc(w.reason):''}</span></div>`}).join('')}</div>`;
+}
+async function wdLoad(){if(S.guest)return;try{const r=await api('/api/withdraw/my');WD.list=r.list;if(route().page==='inventory'){const y=window.scrollY;$('#view').innerHTML=viewInventory();window.scrollTo(0,y)}}catch(e){}}
+function showWithdraw(uid){
+  const it=S.inv.find(i=>i.uid===uid);if(!it)return;
+  $('#modal').innerHTML=`<div class="scrim" data-act="close"><div class="modal glass wdm" style="--rc:${RAR[it.rar].color}" role="dialog" aria-modal="true" aria-labelledby="wdH">
+    <div class="kick">Вывод в Steam</div><h2 id="wdH">${it.st?'StatTrak™ ':''}${esc(it.name)}</h2><div class="sub">${it.wearName||''}${it.wear?' · float '+it.float.toFixed(4):''} · ${money(it.price)}</div>
+    ${art(it)}
+    <form data-form="wd" data-uid="${esc(uid)}">
+      <label class="dep-amt"><span>Твоя трейд-ссылка Steam</span><input name="trade" type="url" required value="${esc(S.trade||'')}" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=…&token=…" autocomplete="off" spellcheck="false"></label>
+      <p class="hint">Где её взять: <a href="${TRADE_HELP}" target="_blank" rel="noopener">Steam → Инвентарь → Предложения обмена → Кто может отправлять мне предложения</a>. Ссылка должна быть от аккаунта, через который ты вошёл.</p>
+      <div class="wd-warn">⏳ <b>Вывод занимает до 2 суток.</b> Предмет пропадёт из инвентаря и придёт обменом в Steam. Если вывод не получится, он вернётся в инвентарь. Профиль и инвентарь Steam должны быть открыты.</div>
+      <div class="btns" style="margin-top:14px"><button class="btn primary" id="wdGo">Вывести</button><button class="btn" type="button" data-act="close">Отмена</button></div>
+    </form></div></div>`;
+}
+async function wdSubmit(f){
+  const b=$('#wdGo');if(b){b.disabled=true;b.textContent='Отправляем…'}
+  try{
+    const r=await api('/api/withdraw',{uid:f.dataset.uid,trade:String(new FormData(f).get('trade')||'').trim()});
+    closeModal();toast('Заявка принята. Вывод занимает до 2 суток');WD.list=[r.withdrawal].concat(WD.list||[]);render();
+  }catch(e){toast(e.message);if(b){b.disabled=false;b.textContent='Вывести'}}
+}
+function admWdHTML(){
+  const tabs=[['pending','Ждут вывода'],['sent','Выведены'],['rejected','Отклонены'],['all','Все']];
+  const rows=(ADM.wd||[]).map(w=>{const it=w.item,[a,b]=split(it.name);
+    return `<div class="awd" style="--rc:${RAR[it.rar].color}">
+      <div class="awd-u">${w.avatar?`<img src="${esc(w.avatar)}" alt="" referrerpolicy="no-referrer">`:''}<span><b>${esc(w.name)}</b><small>${w.steamid}</small></span></div>
+      <div class="awd-it">${art(it)}<span><b>${it.st?'StatTrak™ ':''}${esc(a)}${b?' | '+esc(b):''}${it.phase?' ('+esc(it.phase)+')':''}</b><small>${esc(it.wearName||'')}${it.wear?' · float '+Number(it.float).toFixed(4):''} · ${money(it.price)}</small></span></div>
+      <div class="awd-meta"><small>${new Date(w.ts).toLocaleString('ru-RU')}</small>${w.status!=='pending'?`<span class="wd-st ${(WD_ST[w.status]||[])[1]}">${(WD_ST[w.status]||[w.status])[0]}${w.reason?' · '+esc(w.reason):''}</span>`:''}</div>
+      <div class="awd-act">
+        <a class="btn sm" href="${esc(w.trade)}" target="_blank" rel="noopener">Открыть обмен</a>
+        <button class="btn sm" data-act="wdcopy" data-v="${esc(it.name)}${it.wearName?' ('+esc(it.wearName)+')':''}">Копировать название</button>
+        ${w.status==='pending'?`<button class="btn sm primary" data-act="admwd" data-op="done" data-id="${w.id}">Выведен ✓</button><button class="btn sm danger" data-act="admwd" data-op="reject" data-id="${w.id}">Отклонить</button>`:''}
+      </div></div>`}).join('');
+  return `<div class="sec-h"><div><h2>Заявки на вывод ${ADM.wdPending?`<span class="pill wd">${ADM.wdPending}</span>`:''}</h2><small>Отправь предмет обменом по ссылке игрока и нажми «Выведен». «Отклонить» вернёт предмет в инвентарь игрока.</small></div>
+    <div class="tabs">${tabs.map(([k,n])=>`<button class="tab ${ADM.wdTab===k?'on':''}" data-act="admwdtab" data-v="${k}">${n}</button>`).join('')}</div></div>
+    <div class="awd-list">${rows||'<div class="hint" style="padding:16px">Заявок нет</div>'}</div>`;
+}
+async function admWd(el){
+  const id=el.dataset.id,op=el.dataset.op;
+  if(!el.dataset.armed){el.dataset.armed=1;const t=el.textContent;el.textContent=op==='done'?'Точно отправил?':'Точно отклонить?';setTimeout(()=>{delete el.dataset.armed;el.textContent=t},3000);return}
+  let reason='';if(op==='reject'){const i=document.querySelector(`[data-reason="${id}"]`);reason=i?i.value:''}
+  try{await api('/api/admin/withdrawals/'+op,{id,reason});toast(op==='done'?'Отмечено как выведенное':'Отклонено, предмет возвращён игроку');adminLoad();updateHeader()}catch(e){toast(e.message)}
 }
 
 /* ---------- events ---------- */
@@ -1169,6 +1225,10 @@ document.addEventListener('click',async e=>{
       adminRun(el.dataset.line);break;
     case 'admfill':{const i=$('#admLine');if(i){i.value=el.dataset.v;i.focus()}break}
     case 'deposit':showDeposit();break;
+    case 'wd':if(needLogin())break;showWithdraw(el.dataset.uid);break;
+    case 'admwd':admWd(el);break;
+    case 'admwdtab':ADM.wdTab=el.dataset.v;adminLoad();break;
+    case 'wdcopy':try{await navigator.clipboard.writeText(el.dataset.v);toast('Скопировано: '+el.dataset.v)}catch(err){toast(el.dataset.v)}break;
     case 'dmethod':DEP.method=el.dataset.m;paintDeposit();break;
     case 'dchip':DEP.amount=+el.dataset.v;{const i=document.querySelector('[data-act="damt"]');if(i)i.value=DEP.amount}depRefresh();break;
     case 'dgo':depositGo();break;
@@ -1184,6 +1244,7 @@ document.addEventListener('submit',async e=>{
   if(k==='cmd'){const line=String(fd.get('line')||'').trim();if(!line)return;ADM.hist.unshift(line);ADM.hi=-1;f.reset();adminRun(line.startsWith('/')?line:'/'+line)}
   if(k==='money'){const op=e.submitter&&e.submitter.value||'give',amt=String(fd.get('amt')||'').trim();if(!amt){toast('Введи сумму');return}adminRun(`/${op} ${f.dataset.id} ${amt}`)}
   if(k==='item'){const s=String(fd.get('skin')||'').trim();if(!s){toast('Введи название скина');return}adminRun(`/giveitem ${f.dataset.id} ${s}${fd.get('st')?' st':''}`)}
+  if(k==='wd'){wdSubmit(f);return}
   if(k==='claim'){try{await api('/api/admin/claim',{code:String(fd.get('code')||'')});toast('Ты владелец сайта');OWNER_SET=true;render()}catch(err){toast(err.message)}}
 });
 document.addEventListener('keydown',e=>{

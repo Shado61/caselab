@@ -630,3 +630,27 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:rgba(
 .dep-hist>div{display:grid;grid-template-columns:1fr auto auto;gap:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .dep-hist em{font-style:normal}
 .dep-hist .ps-succeeded{color:var(--good)}.dep-hist .ps-failed{color:#ff8d8d}
+
+/* ---------- withdrawals ---------- */
+.inv-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.wd-note{padding:12px 16px;border-radius:14px;border:1px solid var(--line);margin:0 0 14px;font-size:14px;color:#c4cce0}
+.wd-note b{color:var(--fg)}
+.wd-h{font-size:22px;margin:28px 0 10px}
+.wd-list{display:grid;gap:6px}
+.wd-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--rc)}
+.wd-it{display:grid;min-width:0}.wd-it b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wd-it small{color:var(--muted);font-size:12px}
+.wd-st{font-size:13px;font-weight:600;white-space:nowrap}
+.wd-p{color:#f5c451}.wd-s{color:var(--good)}.wd-r{color:#ff8d8d}
+.wdm{text-align:left}.wdm .art{max-width:260px;margin:8px auto 18px}
+.wdm .hint a{color:var(--accent);text-decoration:underline}
+.wd-warn{margin-top:12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#f5c451 12%,var(--surface));border:1px solid color-mix(in srgb,#f5c451 35%,var(--line));font-size:13px;color:#e8dcc0}
+.pill.wd{background:#f5c451;color:#1a1300;border-color:transparent}
+.awd-list{display:grid;gap:8px}
+.awd{display:grid;grid-template-columns:200px 1fr auto;grid-template-areas:"u it meta" "act act act";gap:8px 14px;align-items:center;padding:12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--rc)}
+.awd-u{grid-area:u;display:flex;gap:8px;align-items:center;min-width:0}.awd-u img{width:32px;height:32px;border-radius:8px}
+.awd-u span,.awd-it span{display:grid;min-width:0}.awd small{color:var(--muted);font-size:12px}
+.awd-it{grid-area:it;display:flex;gap:10px;align-items:center;min-width:0}.awd-it .art{width:84px;flex:none;margin:0}
+.awd-meta{grid-area:meta;text-align:right;display:grid;gap:2px}
+.awd-act{grid-area:act;display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:700px){.awd{grid-template-columns:1fr;grid-template-areas:"u" "it" "meta" "act"}.awd-meta{text-align:left}}
+.wdm .dep-amt input{font:500 14px var(--f-body);height:46px}
