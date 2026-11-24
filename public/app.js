@@ -403,7 +403,9 @@ async function loadSkinImages(){
 }
 function art(it){
   ITEM_BY_NAME[it.name]=it;
-  const real=remoteImg(it.name);
+  /* market items carry their own picture (Doppler phases differ); everything else is looked up by name */
+  const own=it.img&&/^https:\/\/[^"'<>\s]+$/.test(it.img)?it.img:null;
+  const real=own&&!BAD_IMG.has(own)?own:remoteImg(it.name);
   if(real)return `<div class="art photo" data-name="${it.name.replace(/"/g,'&quot;')}" style="--rc:${RAR[it.rar].color}"><img src="${real}" alt="${it.name.replace(/"/g,'&quot;')}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="__clImgFail(this)"></div>`;
   return drawnArt(it);
 }
@@ -562,7 +564,7 @@ function beep(f,d,v,type,when){
 }
 const tick=()=>beep(620+Math.random()*120,.045,.045,'square');
 function reveal(rar){
-  const n=RAR[rar].ord+1,notes=[523,659,784,988,1319];
+  const n=Math.max(1,RAR[rar].ord+1),notes=[523,659,784,988,1319];
   for(let i=0;i<n;i++)beep(notes[i],.35,.06,'triangle',i*.09);
 }
 
@@ -570,7 +572,7 @@ function itemCard(it,extra){
   const [w,s]=split(it.name);
   return `<div class="item" style="--rc:${RAR[it.rar].color}">${art(it)}
     <div class="w">${it.st?'StatTrak™ ':''}${w}</div><div class="n" title="${it.name}">${s||w}</div>
-    <div class="row"><span>${it.wear?it.wear+' · '+it.float.toFixed(3):(it.chance?it.chance:'')}</span><b>${money(it.price)}</b></div>${extra||''}</div>`;
+    <div class="row"><span>${it.wear?it.wear+' · '+it.float.toFixed(3):(it.chance?it.chance:'')}${it.phase?' · '+esc(it.phase):''}</span><b>${money(it.price)}</b></div>${extra||''}</div>`;
 }
 
 /* ---------- header ---------- */
@@ -610,7 +612,7 @@ function renderLive(){
 function route(){
   const h=(location.hash||'#cases').slice(1);
   if(h.startsWith('case-')){const c=CASE(h.slice(5));if(c)return {page:'case',c}}
-  if(['inventory','upgrade','pass','admin'].includes(h))return {page:h};
+  if(['inventory','upgrade','pass','admin','market'].includes(h))return {page:h};
   return {page:'cases'};
 }
 function render(){
@@ -621,10 +623,11 @@ function render(){
   else if(r.page==='upgrade')v.innerHTML=viewUpgrade();
   else if(r.page==='pass')v.innerHTML=viewPass();
   else if(r.page==='admin'){v.innerHTML=viewAdmin();adminLoad()}
+  else if(r.page==='market'){v.innerHTML=viewMarket();marketLoad()}
   else v.innerHTML=viewInventory();
   updateHeader();
 }
-window.addEventListener('hashchange',()=>{closeModal();render();if(!busy)window.scrollTo(0,0)});
+window.addEventListener('hashchange',()=>{closeModal();render();if(!busy)window.scrollTo(0,0);payHash()});
 
 /* ---------- views ---------- */
 function viewCases(){
@@ -997,6 +1000,138 @@ async function adminRun(line){
   updateHeader();adminLoad();
 }
 
+/* ---------- market: every CS2 skin, prices come from the server ---------- */
+const MK={q:'',rar:'',type:'',weapon:'',wear:'',st:'',sort:'rar',page:1,meta:null,data:null,loading:false,err:'',seq:0,armed:null};
+const mkParams=()=>{const p=new URLSearchParams();['q','rar','type','weapon','wear','st','sort'].forEach(k=>{if(MK[k])p.set(k,MK[k])});p.set('page',MK.page);return p.toString()};
+const opt=(v,t,cur)=>`<option value="${esc(v)}" ${String(cur)===String(v)?'selected':''}>${esc(t)}</option>`;
+function viewMarket(){
+  const m=MK.meta;
+  const types=m?m.types:[],weapons=m&&MK.type?(m.weapons[MK.type]||[]):[];
+  return `<div class="sec-h"><div><h1 class="h2-3d" style="font-size:32px">Маркет</h1>
+      <small>${m?`${m.total.toLocaleString('ru-RU')} лотов: все скины CS2 во всех износах · цены на ${Math.round(m.discount*100)}% ниже Steam`:'Загружаем каталог…'}</small></div>
+      <div class="inv-actions"><div class="bal-mini">Баланс <b>${S.guest?'—':money(S.bal)}</b></div><button class="btn sm primary" data-act="deposit">Пополнить</button></div></div>
+    <div class="mk-bar glass">
+      <label class="mk-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" data-act="mq" value="${esc(MK.q)}" placeholder="Поиск: AK-47 Redline, Karambit Doppler…" aria-label="Поиск по названию" autocomplete="off"></label>
+      <select class="sel" data-act="mf" data-k="rar" aria-label="Редкость">${opt('','Любая редкость',MK.rar)}${(m?m.rarities:[]).map(([k,n])=>opt(k,n,MK.rar)).join('')}</select>
+      <select class="sel" data-act="mf" data-k="type" aria-label="Тип оружия">${opt('','Все типы',MK.type)}${types.map(([k,n])=>opt(k,n,MK.type)).join('')}</select>
+      ${weapons.length>1?`<select class="sel" data-act="mf" data-k="weapon" aria-label="Оружие">${opt('','Всё оружие',MK.weapon)}${weapons.map(w=>opt(w,w.replace(/^★ /,''),MK.weapon)).join('')}</select>`:''}
+      <select class="sel" data-act="mf" data-k="wear" aria-label="Качество">${opt('','Любое качество',MK.wear)}${(m?m.wears:[]).map(([k,n])=>opt(k,n,MK.wear)).join('')}</select>
+      <select class="sel" data-act="mf" data-k="st" aria-label="StatTrak">${opt('','StatTrak™ и обычные',MK.st)}${opt('1','Только StatTrak™',MK.st)}${opt('0','Без StatTrak™',MK.st)}</select>
+      <select class="sel" data-act="mf" data-k="sort" aria-label="Сортировка">${opt('price-asc','Сначала дешевле',MK.sort)}${opt('price-desc','Сначала дороже',MK.sort)}${opt('rar','По редкости',MK.sort)}${opt('name','По названию',MK.sort)}</select>
+      ${MK.q||MK.rar||MK.type||MK.weapon||MK.wear||MK.st?'<button class="btn sm" data-act="mreset">Сбросить</button>':''}
+    </div>
+    <div id="mkRes">${mkResHTML()}</div>`;
+}
+function mkCard(x){
+  const [w,s]=split(x.name),armed=MK.armed===x.id;
+  return `<div class="item mk" style="--rc:${RAR[x.rar].color}">${art(x)}
+    <div class="w">${x.st?'<span class="st">StatTrak™</span> ':''}${esc(w)}</div><div class="n" title="${esc(x.name)}">${esc(s||w)}${x.phase?` <span class="ph">${esc(x.phase)}</span>`:''}</div>
+    <div class="row"><span title="${esc(x.wearName||'')}">${x.wear?`<span class="tag">${x.wear}</span> ${esc(x.wearName)}`:'Агент'}</span></div>
+    <div class="row mk-price"><s title="Цена в Steam">${money(x.steam)}</s><b>${money(x.price)}</b></div>
+    <button class="btn sm ${armed?'primary':''} mk-buy" data-act="mbuy" data-id="${esc(x.id)}" data-price="${x.price}">${armed?'Купить за '+money(x.price)+'?':'Купить'}</button></div>`;
+}
+function mkResHTML(){
+  if(MK.err)return `<div class="empty glass"><div>${esc(MK.err)}</div><button class="btn" data-act="mretry">Ещё раз</button></div>`;
+  const d=MK.data;
+  if(!d)return `<div class="empty glass"><div>Загружаем скины…</div></div>`;
+  if(!d.ready)return `<div class="empty glass"><div>Каталог скинов загружается на сервере. Обнови страницу через минуту.</div></div>`;
+  if(!d.items.length)return `<div class="empty glass"><div>Ничего не нашлось. Попробуй другой запрос или сбрось фильтры.</div><button class="btn" data-act="mreset">Сбросить фильтры</button></div>`;
+  const pager=d.pages>1?`<div class="mk-pager"><button class="btn sm" data-act="mpage" data-p="${d.page-1}" ${d.page<=1?'disabled':''}>← Назад</button>
+    <span>Стр. ${d.page} из ${d.pages}</span><button class="btn sm" data-act="mpage" data-p="${d.page+1}" ${d.page>=d.pages?'disabled':''}>Дальше →</button></div>`:'';
+  return `<div class="mk-count">Найдено: ${d.total.toLocaleString('ru-RU')}</div><div class="items mk-grid${MK.loading?' dim':''}">${d.items.map(mkCard).join('')}</div>${pager}`;
+}
+function mkPaint(){const box=$('#mkRes');if(box)box.innerHTML=mkResHTML()}
+async function marketLoad(){
+  if(!MK.meta)api('/api/market/meta').then(m=>{MK.meta=m;if(route().page==='market'){const f=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.act==='mq';render();if(f){const i=document.querySelector('[data-act="mq"]');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}}}).catch(()=>{});
+  const my=++MK.seq;MK.loading=true;MK.err='';if(MK.data)mkPaint();
+  try{const d=await api('/api/market?'+mkParams());if(my!==MK.seq)return;MK.data=d;MK.page=d.page}
+  catch(e){if(my!==MK.seq)return;MK.err=e.message}
+  MK.loading=false;mkPaint();
+}
+async function marketBuy(el){
+  if(needLogin())return;
+  const id=el.dataset.id,price=+el.dataset.price;
+  if(MK.armed!==id){MK.armed=id;mkPaint();clearTimeout(MK.t);MK.t=setTimeout(()=>{if(MK.armed===id){MK.armed=null;mkPaint()}},4000);return}
+  MK.armed=null;
+  if(S.bal<price){mkPaint();toast('Не хватает '+money(Math.round((price-S.bal)*100)/100)+'. Пополни баланс.');showDeposit(Math.max(1,Math.ceil(price-S.bal)));return}
+  el.disabled=true;el.textContent='Покупаем…';
+  try{const r=await api('/api/market/buy',{id,price});reveal(r.item.rar);toast((r.item.st?'StatTrak™ ':'')+r.item.name+' — в инвентаре');updateHeader();render()}
+  catch(e){toast(e.message);mkPaint()}
+}
+
+/* ---------- balance top-up ---------- */
+const DEP={cfg:null,method:null,amount:10,agree:false,hist:null,sending:false};
+const fmtCur=(v,c)=>{try{return new Intl.NumberFormat('ru-RU',{style:'currency',currency:c,maximumFractionDigits:2}).format(v)}catch(e){return v+' '+c}};
+const PAY_ST={pending:'ждёт оплаты',succeeded:'зачислено',failed:'ошибка'};
+async function showDeposit(amount){
+  if(needLogin())return;
+  if(amount)DEP.amount=amount;
+  if(!DEP.cfg){$('#modal').innerHTML=`<div class="scrim" data-act="close"><div class="modal glass" role="dialog" aria-modal="true"><h2>Пополнение</h2><p class="sub">Загружаем способы оплаты…</p></div></div>`;
+    try{DEP.cfg=await api('/api/payment/config')}catch(e){closeModal();toast(e.message);return}}
+  if(!DEP.method||!DEP.cfg.methods.some(m=>m.id===DEP.method))DEP.method=DEP.cfg.methods[0]&&DEP.cfg.methods[0].id;
+  paintDeposit();
+  api('/api/payment/history').then(r=>{DEP.hist=r.list;const h=$('#depHist');if(h)h.innerHTML=depHistHTML()}).catch(()=>{});
+}
+function depHistHTML(){
+  if(!DEP.hist||!DEP.hist.length)return '';
+  return `<div class="dep-hist"><b>Последние пополнения</b>${DEP.hist.slice(0,4).map(p=>`<div><span>${new Date(p.at).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span><span>${money(p.amount)}</span><em class="ps-${p.status}">${PAY_ST[p.status]||p.status}</em></div>`).join('')}</div>`;
+}
+function depSummary(){
+  const c=DEP.cfg,m=c.methods.find(x=>x.id===DEP.method),a=Number(DEP.amount);
+  const ok=isFinite(a)&&a>=c.min&&a<=c.max&&Math.round(a*100)/100===a;
+  return {ok,a,m,html:ok&&m?`<div class="dep-sum"><div><span>Зачислим на баланс</span><b class="good">${money(a)}</b></div><div><span>К оплате</span><b>${fmtCur(Math.round(a*m.rate*100)/100,m.currency)}</b></div></div>`
+    :`<div class="dep-sum bad">Введи сумму от ${money(c.min)} до ${money(c.max)}</div>`};
+}
+function paintDeposit(){
+  const c=DEP.cfg;
+  if(!c.methods.length){$('#modal').innerHTML=`<div class="scrim" data-act="close"><div class="modal glass" role="dialog" aria-modal="true"><div class="kick">Баланс</div><h2>Пополнение пока недоступно</h2>
+    <p class="sub">Владелец сайта ещё не подключил платёжную систему.</p><div class="btns" style="margin-top:14px"><button class="btn" data-act="close">Закрыть</button></div></div></div>`;return}
+  const s=depSummary();
+  $('#modal').innerHTML=`<div class="scrim" data-act="close"><div class="modal glass dep" style="--rc:#22c55e" role="dialog" aria-modal="true" aria-labelledby="depH">
+    <div class="kick">Баланс ${money(S.bal)}</div><h2 id="depH">Пополнить баланс</h2>
+    ${c.methods.length>1?`<div class="dep-methods" role="radiogroup" aria-label="Способ оплаты">${c.methods.map(m=>`<button class="dep-m ${m.id===DEP.method?'on':''}" role="radio" aria-checked="${m.id===DEP.method}" data-act="dmethod" data-m="${m.id}">${m.id==='card'?'💳':'🪙'} ${esc(m.name)}<small>${m.id==='card'?'оплата в '+esc(m.currency):'USDT, BTC, ETH…'}</small></button>`).join('')}</div>`:''}
+    <label class="dep-amt"><span>Сумма пополнения, $</span><input type="number" inputmode="decimal" min="${c.min}" max="${c.max}" step="0.01" value="${esc(DEP.amount)}" data-act="damt" aria-describedby="depSum"></label>
+    <div class="dep-chips">${[1,5,10,25,50,100].filter(v=>v>=c.min&&v<=c.max).map(v=>`<button class="tab ${Number(DEP.amount)===v?'on':''}" data-act="dchip" data-v="${v}">$${v}</button>`).join('')}</div>
+    <div id="depSum">${s.html}</div>
+    <label class="dep-agree"><input type="checkbox" data-act="dagree" ${DEP.agree?'checked':''}><span>Мне есть 18 лет. Я понимаю, что предметы на сайте виртуальные: их нельзя вывести в Steam или обменять обратно на деньги, а пополнение не возвращается.</span></label>
+    <div class="btns" style="margin-top:14px"><button class="btn primary" data-act="dgo" id="depGo" ${s.ok&&DEP.agree&&!DEP.sending?'':'disabled'}>${DEP.sending?'Создаём платёж…':'Перейти к оплате'}</button><button class="btn" data-act="close">Отмена</button></div>
+    <p class="hint" style="margin-top:10px">Оплата проходит на защищённой странице платёжной системы, данные карты сайт не видит. Деньги зачисляются автоматически, обычно за минуту.</p>
+    <div id="depHist">${depHistHTML()}</div></div></div>`;
+}
+function depRefresh(){
+  const s=depSummary(),box=$('#depSum'),b=$('#depGo');
+  if(box)box.innerHTML=s.html;if(b)b.disabled=!(s.ok&&DEP.agree&&!DEP.sending);
+  document.querySelectorAll('[data-act="dchip"]').forEach(x=>x.classList.toggle('on',Number(x.dataset.v)===Number(DEP.amount)));
+}
+async function depositGo(){
+  const s=depSummary();if(!s.ok||!DEP.agree||DEP.sending)return;
+  DEP.sending=true;depRefresh();const b=$('#depGo');if(b)b.textContent='Создаём платёж…';
+  try{
+    const r=await api('/api/payment/create',{amount:s.a,method:DEP.method,agree:true});
+    if(!/^https:\/\//.test(r.url))throw new Error('Неверная ссылка на оплату');
+    location.href=r.url;
+  }catch(e){toast(e.message);DEP.sending=false;paintDeposit()}
+}
+/* back from the payment page: #pay-<id> */
+async function payHash(){
+  const m=/^#pay-(p_[0-9a-f]{24})$/.exec(location.hash);if(!m)return;
+  history.replaceState(null,'',location.pathname+location.search+'#cases');render();
+  if(S.guest)return;
+  const id=m[1],t0=Date.now();
+  const show=(h,sub,btn)=>{$('#modal').innerHTML=`<div class="scrim" data-act="close"><div class="modal glass" style="--rc:#22c55e" role="dialog" aria-modal="true"><div class="kick">Пополнение</div><h2>${h}</h2><p class="sub">${sub}</p>${btn?`<div class="btns" style="margin-top:14px">${btn}</div>`:''}</div></div>`};
+  show('Проверяем оплату…','Обычно это занимает до минуты. Окно можно закрыть — баланс обновится сам.');
+  const tick=async()=>{
+    let r;try{r=await api('/api/payment/status?id='+id)}catch(e){show('Не нашли платёж',esc(e.message),'<button class="btn" data-act="close">Закрыть</button>');return}
+    updateHeader();
+    if(r.status==='succeeded'){reveal('gld');DEP.hist=null;show(`+${money(r.amount)} на балансе`,'Спасибо! Деньги уже зачислены.','<a class="btn primary" href="#market">В маркет</a><a class="btn" href="#cases">К кейсам</a>');return}
+    if(r.status==='failed'){show('Платёж не прошёл','Деньги не списаны. Можно попробовать ещё раз.','<button class="btn primary" data-act="deposit">Попробовать снова</button>');return}
+    if(Date.now()-t0>180e3){show('Платёж ещё обрабатывается','Если ты оплатил, баланс пополнится автоматически, как только платёжная система пришлёт подтверждение.','<button class="btn" data-act="close">Хорошо</button>');return}
+    setTimeout(tick,3000);
+  };
+  tick();
+}
+
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
@@ -1033,6 +1168,14 @@ document.addEventListener('click',async e=>{
       if(el.dataset.confirm&&!el.dataset.armed){el.dataset.armed=1;const t=el.textContent;el.textContent='Точно?';setTimeout(()=>{delete el.dataset.armed;el.textContent=t},3000);break}
       adminRun(el.dataset.line);break;
     case 'admfill':{const i=$('#admLine');if(i){i.value=el.dataset.v;i.focus()}break}
+    case 'deposit':showDeposit();break;
+    case 'dmethod':DEP.method=el.dataset.m;paintDeposit();break;
+    case 'dchip':DEP.amount=+el.dataset.v;{const i=document.querySelector('[data-act="damt"]');if(i)i.value=DEP.amount}depRefresh();break;
+    case 'dgo':depositGo();break;
+    case 'mbuy':marketBuy(el);break;
+    case 'mpage':MK.page=+el.dataset.p;marketLoad();document.querySelector('.mk-bar')&&document.querySelector('.mk-bar').scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'start'});break;
+    case 'mreset':Object.assign(MK,{q:'',rar:'',type:'',weapon:'',wear:'',st:'',page:1});render();break;
+    case 'mretry':marketLoad();break;
   }
 });
 document.addEventListener('submit',async e=>{
@@ -1051,6 +1194,10 @@ let admT=null;
 document.addEventListener('input',e=>{
   const q=e.target.closest('[data-act="upq"]');
   if(q){UP.q=q.value;const box=$('#upTargets');if(box)box.innerHTML=targetsHTML(S.inv.find(i=>i.uid===UP.src)||null);return}
+  const mq=e.target.closest('[data-act="mq"]');
+  if(mq){MK.q=mq.value.slice(0,80);MK.page=1;clearTimeout(MK.qt);MK.qt=setTimeout(marketLoad,280);return}
+  const da=e.target.closest('[data-act="damt"]');
+  if(da){DEP.amount=da.value===''?'':Number(da.value);depRefresh();return}
   const aq=e.target.closest('[data-act="admq"]');
   if(aq){ADM.q=aq.value;clearTimeout(admT);admT=setTimeout(adminLoad,250)}
 });
@@ -1059,6 +1206,8 @@ document.addEventListener('change',e=>{
   if(el.dataset.act==='fast'){PREF.fast=el.checked;savePref()}
   if(el.dataset.act==='sort'){UI.inv=el.value;render()}
   if(el.dataset.act==='csort'){UI.sort=el.value;render()}
+  if(el.dataset.act==='mf'){const k=el.dataset.k;MK[k]=el.value;if(k==='type')MK.weapon='';MK.page=1;if(k==='type'||k==='weapon')render();else marketLoad()}
+  if(el.dataset.act==='dagree'){DEP.agree=el.checked;depRefresh()}
 });
 
 /* ---------- 3D tilt: the outer card keeps its place (so clicks always land), the inner layer tilts ---------- */
@@ -1077,7 +1226,7 @@ document.addEventListener('pointerleave',()=>document.querySelectorAll('.tilt.ti
   await loadMe();
   if(new URLSearchParams(location.search).has('err'))toast('Вход не удался');
   render();pollLive();setInterval(pollLive,6000);setInterval(async()=>{await loadMe();updateHeader()},60000);
-  loadSkinImages();
+  loadSkinImages();payHash();
 })();
 window.__CL={CASES,RAR,SKINS,S:()=>S};
 })();

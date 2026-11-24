@@ -582,3 +582,51 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:rgba(
 /* official CS2 case images (transparent PNG from Steam) */
 .cr.photo.real img{-webkit-mask-image:none;mask-image:none;width:210px;height:180px;margin-top:6px;filter:drop-shadow(0 16px 22px rgba(0,0,0,.6)) drop-shadow(0 0 18px color-mix(in srgb,var(--a) 40%,transparent))}
 .banner .cr.photo.real img{width:270px;height:220px;margin-top:0}
+
+/* ---------- balance «+» ---------- */
+.bal-wrap{display:flex;align-items:stretch;gap:0}
+.bal-wrap .bal{border-top-right-radius:0;border-bottom-right-radius:0}
+.bal-plus{width:38px;border:1px solid var(--line);border-left:0;border-radius:0 12px 12px 0;background:color-mix(in srgb,var(--good) 18%,var(--surface));color:var(--good);font:700 22px/1 var(--f-display);transition:background .15s}
+.bal-plus:hover{background:color-mix(in srgb,var(--good) 30%,var(--surface))}
+.bal-mini{font-size:13px;color:var(--muted);padding:0 6px}
+.bal-mini b{color:var(--good);font:600 16px var(--f-display);margin-left:4px}
+
+/* ---------- market ---------- */
+.mk-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);margin:0 0 14px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:20}
+.mk-search{flex:1 1 260px;display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted)}
+.mk-search:focus-within{border-color:var(--accent)}
+.mk-search input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font:inherit;font-size:14px}
+.mk-count{font-size:13px;color:var(--muted);margin:0 0 8px}
+.mk-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.mk-grid.dim{opacity:.55;transition:opacity .15s}
+.item.mk .art{min-height:96px}
+.item.mk .st{color:#cf6a32;font-weight:700}
+.item.mk .ph{font:600 11px var(--f-body);color:var(--rc);white-space:nowrap}
+.item.mk .row .tag{margin-right:2px}
+.mk-price s{color:var(--muted);font-size:12px}
+.mk-price b{color:var(--good)!important}
+.mk-buy{margin-top:8px;width:100%}
+.mk-pager{display:flex;justify-content:center;align-items:center;gap:14px;margin:18px 0 6px;color:var(--muted);font-size:14px}
+@media (max-width:700px){.mk-bar{position:static;display:grid;grid-template-columns:1fr 1fr}.mk-search{grid-column:1/-1}.mk-bar .sel{width:100%;min-width:0}.mk-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+
+/* ---------- deposit ---------- */
+.modal.dep{text-align:left}
+.dep-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 4px}
+.dep-m{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:15px;text-align:left}
+.dep-m small{font-weight:500;font-size:12px;color:var(--muted)}
+.dep-m.on{border-color:var(--rc);background:color-mix(in srgb,var(--rc) 14%,var(--surface))}
+.dep-amt{display:grid;gap:6px;margin:14px 0 8px;font-size:13px;color:var(--muted)}
+.dep-amt input{height:52px;border-radius:13px;border:1px solid var(--line);background:var(--bg);color:var(--fg);padding:0 14px;font:600 22px var(--f-display);font-variant-numeric:tabular-nums}
+.dep-amt input:focus{outline:2px solid var(--rc);outline-offset:1px}
+.dep-chips{display:flex;flex-wrap:wrap;gap:6px}
+.dep-sum{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin:14px 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--line)}
+.dep-sum>div{background:var(--surface);padding:10px 14px}
+.dep-sum span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.dep-sum b{font:600 20px var(--f-display);font-variant-numeric:tabular-nums}
+.dep-sum.bad{display:block;padding:12px 14px;background:var(--surface);color:#ffb4b4;font-size:14px}
+.dep-agree{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);cursor:pointer}
+.dep-agree input{margin-top:2px;width:18px;height:18px;flex:none;accent-color:var(--good)}
+.dep-hist{margin-top:14px;border-top:1px solid var(--line);padding-top:10px;font-size:13px;display:grid;gap:4px}
+.dep-hist>div{display:grid;grid-template-columns:1fr auto auto;gap:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.dep-hist em{font-style:normal}
+.dep-hist .ps-succeeded{color:var(--good)}.dep-hist .ps-failed{color:#ff8d8d}

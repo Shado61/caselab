@@ -3,6 +3,8 @@
 /* ---------- tiers ---------- */
 /* chance: demo odds. real: odds of real CS2 cases. lo/hi: item price as multiple of case price */
 const RAR={
+  con:{k:'con',name:'Ширпотреб',color:'#b0c3d9',hue:212,chance:0,real:0,lo:.1,hi:.3,ord:-2},  /* market only: no case drops these two */
+  ind:{k:'ind',name:'Промышленное качество',color:'#5e98d9',hue:212,chance:0,real:0,lo:.2,hi:.5,ord:-1},
   mil:{k:'mil',name:'Армейское качество',color:'#4b69ff',hue:228,chance:58,real:79.92,lo:.5,hi:.8,ord:0},
   res:{k:'res',name:'Запрещённое',color:'#8847ff',hue:266,chance:28,real:15.98,lo:.8,hi:1.3,ord:1},
   cls:{k:'cls',name:'Засекреченное',color:'#d32ce6',hue:296,chance:10,real:3.2,lo:1.3,hi:3,ord:2},
