@@ -11,3 +11,27 @@ services:
         sync: false
       - key: OWNER_STEAMID
         sync: false
+      - key: MARKET_DISCOUNT
+        value: "0.05"
+      - key: DEPOSIT_MIN_USD
+        value: "1"
+      - key: DEPOSIT_MAX_USD
+        value: "1000"
+      - key: CLOUDPAYMENTS_PUBLIC_ID
+        sync: false
+      - key: CLOUDPAYMENTS_API_SECRET
+        sync: false
+      - key: CLOUDPAYMENTS_API_URL
+        value: https://api.cloudpayments.ru
+      - key: CLOUDPAYMENTS_CURRENCY
+        value: KZT
+      - key: CLOUDPAYMENTS_RATE
+        value: "500"
+      - key: CLOUDPAYMENTS_TEST_MODE
+        value: "0"
+      - key: TRYBIT_API_KEY
+        sync: false
+      - key: TRYBIT_SHOP_ID
+        sync: false
+      - key: TRYBIT_SECRET_KEY
+        sync: false

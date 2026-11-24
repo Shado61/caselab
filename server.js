@@ -2,7 +2,17 @@
    No npm packages needed: run with `node server.js` (Node 18 or newer). */
 'use strict';
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto');
+/* secrets come from environment variables (Render → Environment) or from a local .env file that is never uploaded */
+(function loadEnv(){
+  let t='';try{t=fs.readFileSync(path.join(__dirname,'.env'),'utf8')}catch(e){return}
+  for(const line of t.split(/\r?\n/)){
+    const m=/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/.exec(line);if(!m)continue;
+    let v=m[2];if(/^(["']).*\1$/.test(v))v=v.slice(1,-1);
+    if(process.env[m[1]]===undefined)process.env[m[1]]=v;
+  }
+})();
 const G=require('./public/game.js');
+const Market=require('./market.js'),Pay=require('./payments.js');
 
 /* ---------- config ---------- */
 const ROOT=__dirname,CFG_FILE=path.join(ROOT,'config.json'),DB_FILE=path.join(ROOT,'data','db.json');
@@ -28,6 +38,8 @@ let saveT=null;
 function save(){clearTimeout(saveT);saveT=setTimeout(flush,400)}
 let flushing=Promise.resolve();
 function flush(){flushing=flushing.then(flushNow).catch(e=>console.error('[db] save failed:',e.message));return flushing}
+/* runs fn after any save in progress, and keeps later saves waiting until fn is done (used for payment credits) */
+function serial(fn){const p=flushing.then(fn);flushing=p.then(()=>{},()=>{});return p}
 async function flushNow(){
   if(!pool){fs.mkdirSync(path.dirname(DB_FILE),{recursive:true});const tmp=DB_FILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(DB));fs.renameSync(tmp,DB_FILE);return}
   const rows=[];
@@ -64,6 +76,7 @@ function send(res,code,obj,headers){
 }
 const SEC_HEADERS={'X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY','Referrer-Policy':'same-origin'};
 function cookies(req){const o={};(req.headers.cookie||'').split(';').forEach(p=>{const i=p.indexOf('=');if(i>0)o[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim())});return o}
+function rawBody(req,limit){return new Promise((ok,bad)=>{const ch=[];let n=0;req.on('data',c=>{n+=c.length;if(n>limit){bad(new Error('too big'));req.destroy();return}ch.push(c)});req.on('end',()=>ok(Buffer.concat(ch).toString('utf8')));req.on('error',bad)})}
 function body(req){return new Promise((ok,bad)=>{let b='';req.on('data',c=>{b+=c;if(b.length>1e5){bad(new Error('too big'));req.destroy()}});req.on('end',()=>{try{ok(b?JSON.parse(b):{})}catch(e){bad(e)}})})}
 function sessionUser(req){
   const t=cookies(req).cl_sid;const s=t&&DB.sessions[t];
@@ -75,7 +88,7 @@ function sessionUser(req){
 const isOwner=u=>!!u&&!!ownerId()&&u.steamid===ownerId();
 function publicMe(u){
   G.ensureBP(u);
-  return {steamid:u.steamid,name:u.name,avatar:u.avatar,bal:u.bal,inv:u.inv,opened:u.opened,spent:u.spent,found:u.found,best:u.best,bp:u.bp,td:u.td,tw:u.tw,admin:isOwner(u)};
+  return {steamid:u.steamid,name:u.name,avatar:u.avatar,bal:u.bal,dep:u.dep||0,inv:u.inv,opened:u.opened,spent:u.spent,found:u.found,best:u.best,bp:u.bp,td:u.td,tw:u.tw,admin:isOwner(u)};
 }
 function newUser(id,name,avatar){
   const u=Object.assign(G.freshUser(),{steamid:id,name:name||('Player '+id.slice(-4)),avatar:avatar||'',bal:CFG.startBalance,created:now(),lastSeen:now(),banned:false});
@@ -140,7 +153,7 @@ API['POST /api/open']=(u,b)=>{
   need(u);const c=G.CASE(b.cid),n=Math.max(1,Math.min(10,b.n|0));
   if(!c)throw E(400,'Нет такого кейса');
   if(tooFast(u,250))throw E(429,'Слишком быстро');
-  const cost=r2(c.price*n);if(u.bal<cost-1e-9)throw E(400,'Не хватает баланса. Деньги выдаёт администратор.');
+  const cost=r2(c.price*n);if(u.bal<cost-1e-9)throw E(400,'Не хватает баланса. Пополни его кнопкой «+» вверху.');
   u.bal=r2(u.bal-cost);u.spent=r2(u.spent+cost);
   const drops=Array.from({length:n},()=>G.makeDrop(c));
   let lvl=G.track(u,'open',{n,paid:true,cost,cid:c.id,cat:c.cat});
@@ -187,6 +200,28 @@ API['POST /api/bp/premium']=(u)=>{
   if(u.bal<G.BP_PREM)throw E(400,'Не хватает баланса');
   u.bal=r2(u.bal-G.BP_PREM);u.bp.prem=true;save();return {me:publicMe(u)};
 };
+/* ---------- market ---------- */
+API['GET /api/market/meta']=()=>Market.meta();
+API['GET /api/market']=(u,b,q)=>Market.query(q);
+API['POST /api/market/buy']=(u,b)=>{
+  need(u);if(tooFast(u,300))throw E(429,'Слишком быстро');
+  const l=Market.get(b.id);if(!l)throw E(400,'Такого лота нет. Обнови страницу.');
+  /* the price is taken from the server catalog only; the browser can say which item, never how much */
+  if(b.price!=null&&Math.abs(Number(b.price)-l.price)>.009)throw E(409,'Цена изменилась: теперь '+l.price+'$. Нажми «Купить» ещё раз.');
+  if(u.bal<l.price-1e-9)throw E(400,'Не хватает баланса. Пополни его кнопкой «+» вверху.');
+  /* check, charge and give in one synchronous step: nothing else can run in between */
+  const it=Market.makeItem(l);
+  u.bal=r2(u.bal-l.price);u.inv.push(it);u.bought=r2((u.bought||0)+l.price);
+  if(!u.best||it.price>u.best.price)u.best=it;
+  save();return {item:it,me:publicMe(u)};
+};
+
+/* ---------- balance top-ups ---------- */
+API['GET /api/payment/config']=()=>Pay.config();
+API['POST /api/payment/create']=async(u,b)=>{need(u);return Pay.create(u,b,CFG.baseUrl)};
+API['GET /api/payment/status']=async(u,b,q)=>{need(u);const r=await Pay.status(u,q.get('id'));return Object.assign(r,{me:publicMe(u)})};
+API['GET /api/payment/history']=async(u)=>{need(u);return {list:await Pay.history(u)}};
+
 API['GET /api/live']=()=>{
   const t=now(),online=Object.values(DB.users).filter(x=>t-(x.lastSeen||0)<70e3).length;
   return {online,players:Object.keys(DB.users).length,feed:DB.feed.slice(0,20),announce:DB.announce};
@@ -256,7 +291,7 @@ function runCmd(admin,line){
   switch(cmd){
     case 'help':return HELP.map(h=>h[0]+' — '+h[1]).join('\n');
     case 'players':{const t0=now();const l=Object.values(DB.users).filter(x=>t[0]!=='online'||t0-(x.lastSeen||0)<70e3);return l.length?l.map(x=>`${x.name} · ${x.steamid} · ${m(x.bal)}${x.banned?' · БАН':''}`).join('\n'):'нет игроков'}
-    case 'info':{const p=findPlayer(t[0]);return `${p.name} (${p.steamid})\nбаланс ${m(p.bal)} · предметов ${p.inv.length} на ${m(r2(p.inv.reduce((a,b)=>a+b.price,0)))}\nоткрыто ${p.opened} · потрачено ${m(p.spent)} · уровень БП ${G.bpLevel(p)}${p.banned?'\nзаблокирован: '+(p.banReason||''):''}`}
+    case 'info':{const p=findPlayer(t[0]);return `${p.name} (${p.steamid})\nбаланс ${m(p.bal)} · пополнено ${m(p.dep||0)} · предметов ${p.inv.length} на ${m(r2(p.inv.reduce((a,b)=>a+b.price,0)))}\nоткрыто ${p.opened} · потрачено ${m(p.spent)} · уровень БП ${G.bpLevel(p)}${p.banned?'\nзаблокирован: '+(p.banReason||''):''}`}
     case 'give':{const p=findPlayer(t[0]),a=amount(t[1]);if(!a)throw new Error('сумма больше 0');p.bal=r2(p.bal+a);return `${p.name}: +${m(a)} → ${m(p.bal)}`}
     case 'take':{const p=findPlayer(t[0]),a=amount(t[1]);p.bal=r2(Math.max(0,p.bal-a));return `${p.name}: −${m(a)} → ${m(p.bal)}`}
     case 'setbal':{const p=findPlayer(t[0]),a=amount(t[1]);p.bal=a;return `${p.name}: баланс ${m(a)}`}
@@ -277,7 +312,7 @@ function runCmd(admin,line){
     case 'unban':{const p=findPlayer(t[0]);p.banned=false;p.banReason='';return `${p.name} разблокирован`}
     case 'kick':{const p=findPlayer(t[0]);const n=dropSessions(p);return `${p.name}: закрыто сессий ${n}`}
     case 'announce':{const s=t.join(' ');DB.announce=(!s||s==='off')?'':s.slice(0,200);return DB.announce?'объявление: '+DB.announce:'объявление убрано'}
-    case 'stats':{const l=Object.values(DB.users);return `игроков ${l.length} · онлайн ${l.filter(x=>now()-(x.lastSeen||0)<70e3).length}\nденег у игроков ${m(r2(l.reduce((a,b)=>a+b.bal,0)))} · предметов ${l.reduce((a,b)=>a+b.inv.length,0)}\nоткрыто кейсов ${l.reduce((a,b)=>a+b.opened,0)}`}
+    case 'stats':{const l=Object.values(DB.users);return `игроков ${l.length} · онлайн ${l.filter(x=>now()-(x.lastSeen||0)<70e3).length}\nденег у игроков ${m(r2(l.reduce((a,b)=>a+b.bal,0)))} · пополнено всего ${m(r2(l.reduce((a,b)=>a+(b.dep||0),0)))} · предметов ${l.reduce((a,b)=>a+b.inv.length,0)}\nоткрыто кейсов ${l.reduce((a,b)=>a+b.opened,0)}`}
   }
   throw new Error('неизвестная команда, напиши /help');
 }
@@ -308,6 +343,14 @@ const server=http.createServer(async(req,res)=>{
       if(!DB.users[id])newUser(id,url.searchParams.get('name')||'Dev '+id.slice(-3),'');return startSession(res,id);
     }
     if(p==='/auth/logout'&&req.method==='POST'){const t=cookies(req).cl_sid;if(t){delete DB.sessions[t];save()}return send(res,200,{ok:true},{'Set-Cookie':'cl_sid=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'})}
+    /* payment gateway notifications: come from the gateway's servers, so no cookie and no Origin; trusted only after the signature check */
+    const wh=/^\/api\/payment\/webhook(?:\/([a-z]+))?\/?$/.exec(p);
+    if(wh){
+      if(req.method!=='POST')return send(res,405,{error:'POST only'});
+      let raw;try{raw=await rawBody(req,65536)}catch(e){return send(res,413,{error:'too big'})}
+      try{const r=await Pay.webhook(wh[1]||'',req.headers,raw,url.searchParams.get('type'));return send(res,r.code,r.body)}
+      catch(e){console.error('[pay] webhook error:',e);return send(res,500,{error:'retry later'})}
+    }
     if(p.startsWith('/api/')){
       const key=req.method+' '+p,fn=API[key];if(!fn)return send(res,404,{error:'нет такого запроса'});
       if(req.method==='POST'){
@@ -315,13 +358,15 @@ const server=http.createServer(async(req,res)=>{
         if(!(req.headers['content-type']||'').includes('application/json'))return send(res,415,{error:'нужен JSON'});
       }
       const u=sessionUser(req);const b=req.method==='POST'?await body(req):{};
-      try{return send(res,200,fn(u,b,url.searchParams))}catch(e){return send(res,e.code||500,{error:e.code?e.message:'ошибка сервера'})}
+      try{return send(res,200,await fn(u,b,url.searchParams))}catch(e){if(!e.code)console.error(e);return send(res,e.code||500,{error:e.code?e.message:'ошибка сервера'})}
     }
     if(req.method!=='GET')return send(res,405,'method not allowed');
     return serveStatic(req,res,p);
   }catch(e){console.error(e);send(res,500,{error:'ошибка сервера'})}
 });
-loadDB().then(where=>server.listen(CFG.port,()=>{
+loadDB().then(async where=>{await Pay.init({pool,DB,save,serial,flushNow:flush});Market.start();return where}).then(where=>server.listen(CFG.port,()=>{
+  const pm=Pay.config().methods.map(x=>x.name).join(', ');
+  console.log(`  Пополнение: ${pm||'выключено (нет ключей в .env)'}`);
   console.log(`  Данные: ${where}`);
   console.log(`\n  CaseLab работает: ${CFG.baseUrl}  (порт ${CFG.port})`);
   if(!ownerId())console.log(`\n  Админ ещё не назначен. Войди через Steam, открой раздел «Админ» и введи код: ${CLAIM_CODE}\n  (или впиши свой SteamID64 в config.json → ownerSteamId)\n`);
