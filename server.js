@@ -31,7 +31,7 @@ const IS_LOCAL=['localhost','127.0.0.1','[::1]'].includes(BASE.hostname);
 /* ---------- storage ----------
    With DATABASE_URL (hosting): Postgres, so data survives restarts. Without it: one JSON file in data/.
    Everything lives in memory; changes are written shortly after they happen. */
-let DB={users:{},sessions:{},feed:[],log:[],announce:'',owner:''};
+let DB={users:{},sessions:{},feed:[],log:[],announce:'',owner:'',withdrawals:[]};
 const PG_URL=process.env.DATABASE_URL||'';
 let pool=null;const SAVED=new Map();
 let saveT=null;
@@ -44,7 +44,7 @@ async function flushNow(){
   if(!pool){fs.mkdirSync(path.dirname(DB_FILE),{recursive:true});const tmp=DB_FILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify(DB));fs.renameSync(tmp,DB_FILE);return}
   const rows=[];
   for(const id in DB.users)rows.push(['u:'+id,DB.users[id]]);
-  for(const k of ['sessions','feed','log','announce','owner'])rows.push(['m:'+k,DB[k]]);
+  for(const k of ['sessions','feed','log','announce','owner','withdrawals'])rows.push(['m:'+k,DB[k]]);
   for(const [k,v] of rows){const j=JSON.stringify(v);if(SAVED.get(k)===j)continue;
     await pool.query('INSERT INTO caselab_kv(k,v) VALUES($1,$2) ON CONFLICT(k) DO UPDATE SET v=EXCLUDED.v',[k,j]);SAVED.set(k,j)}
 }
@@ -88,7 +88,7 @@ function sessionUser(req){
 const isOwner=u=>!!u&&!!ownerId()&&u.steamid===ownerId();
 function publicMe(u){
   G.ensureBP(u);
-  return {steamid:u.steamid,name:u.name,avatar:u.avatar,bal:u.bal,dep:u.dep||0,inv:u.inv,opened:u.opened,spent:u.spent,found:u.found,best:u.best,bp:u.bp,td:u.td,tw:u.tw,admin:isOwner(u)};
+  return {steamid:u.steamid,name:u.name,avatar:u.avatar,bal:u.bal,dep:u.dep||0,trade:u.trade||'',wdPending:(DB.withdrawals||[]).filter(w=>w.steamid===u.steamid&&w.status==='pending').length,inv:u.inv,opened:u.opened,spent:u.spent,found:u.found,best:u.best,bp:u.bp,td:u.td,tw:u.tw,admin:isOwner(u),wdAll:isOwner(u)?(DB.withdrawals||[]).filter(w=>w.status==='pending').length:0};
 }
 function newUser(id,name,avatar){
   const u=Object.assign(G.freshUser(),{steamid:id,name:name||('Player '+id.slice(-4)),avatar:avatar||'',bal:CFG.startBalance,created:now(),lastSeen:now(),banned:false});
@@ -214,6 +214,52 @@ API['POST /api/market/buy']=(u,b)=>{
   u.bal=r2(u.bal-l.price);u.inv.push(it);u.bought=r2((u.bought||0)+l.price);
   if(!u.best||it.price>u.best.price)u.best=it;
   save();return {item:it,me:publicMe(u)};
+};
+
+/* ---------- withdrawals to Steam ----------
+   The player asks for an item; it leaves the inventory at once (so it cannot be sold or upgraded twice)
+   and waits for the owner, who sends it by hand through the player's trade link and marks it as sent.
+   A rejected request puts the item back. */
+const TRADE_RE=/^https:\/\/steamcommunity\.com\/tradeoffer\/new\/\?partner=(\d{1,10})&token=([A-Za-z0-9_-]{6,12})$/;
+const WD_MAX_PENDING=10;
+function cleanTrade(v){
+  const t=String(v||'').trim().replace(/&amp;/g,'&');
+  const m=TRADE_RE.exec(t);if(!m)return null;
+  return {url:`https://steamcommunity.com/tradeoffer/new/?partner=${m[1]}&token=${m[2]}`,partner:m[1]};
+}
+const wdOut=w=>({id:w.id,item:w.item,status:w.status,ts:w.ts,done:w.done||null,reason:w.reason||''});
+API['POST /api/withdraw']=(u,b)=>{
+  need(u);if(tooFast(u,800))throw E(429,'Слишком быстро');
+  const tr=cleanTrade(b.trade);
+  if(!tr)throw E(400,'Неверная трейд-ссылка. Скопируй её целиком из Steam: Инвентарь → Предложения обмена → Кто может отправлять мне предложения.');
+  /* the trade link must belong to this Steam account: partner = SteamID64 − 76561197960265728 */
+  if(String(BigInt(u.steamid)-76561197960265728n)!==tr.partner)throw E(400,'Эта трейд-ссылка от другого аккаунта Steam. Укажи ссылку того аккаунта, через который ты вошёл.');
+  DB.withdrawals=DB.withdrawals||[];
+  if(DB.withdrawals.filter(w=>w.steamid===u.steamid&&w.status==='pending').length>=WD_MAX_PENDING)throw E(400,`Не больше ${WD_MAX_PENDING} заявок одновременно. Дождись вывода уже поданных.`);
+  const i=u.inv.findIndex(it=>it.uid===String(b.uid||''));if(i<0)throw E(400,'Предмета нет в инвентаре');
+  const [it]=u.inv.splice(i,1);
+  const w={id:'w_'+crypto.randomBytes(6).toString('hex'),steamid:u.steamid,name:u.name,avatar:u.avatar,item:it,trade:tr.url,status:'pending',ts:now()};
+  DB.withdrawals.unshift(w);u.trade=tr.url;
+  if(DB.withdrawals.length>2000){const keep=DB.withdrawals.filter(x=>x.status==='pending'),old=DB.withdrawals.filter(x=>x.status!=='pending').slice(0,1500);DB.withdrawals=keep.concat(old).sort((a,b)=>b.ts-a.ts)}
+  save();return {withdrawal:wdOut(w),me:publicMe(u)};
+};
+API['GET /api/withdraw/my']=(u)=>{need(u);return {list:(DB.withdrawals||[]).filter(w=>w.steamid===u.steamid).slice(0,30).map(wdOut)}};
+API['GET /api/admin/withdrawals']=(u,b,q)=>{
+  needAdmin(u);const st=q.get('status')||'pending',list=(DB.withdrawals||[]).filter(w=>st==='all'||w.status===st);
+  return {list:list.slice(0,200),pending:(DB.withdrawals||[]).filter(w=>w.status==='pending').length};
+};
+API['POST /api/admin/withdrawals/done']=(u,b)=>{
+  needAdmin(u);const w=(DB.withdrawals||[]).find(x=>x.id===String(b.id||''));
+  if(!w||w.status!=='pending')throw E(400,'Заявка не найдена или уже обработана');
+  w.status='sent';w.done=now();adminLog(u,'вывод '+w.id,`${w.name}: ${w.item.name} отмечен как выведенный`);save();return {ok:true};
+};
+API['POST /api/admin/withdrawals/reject']=(u,b)=>{
+  needAdmin(u);const w=(DB.withdrawals||[]).find(x=>x.id===String(b.id||''));
+  if(!w||w.status!=='pending')throw E(400,'Заявка не найдена или уже обработана');
+  const p=DB.users[w.steamid];
+  w.status='rejected';w.done=now();w.reason=String(b.reason||'').slice(0,200);
+  if(p)p.inv.push(w.item); /* the item goes back to the player */
+  adminLog(u,'отказ '+w.id,`${w.name}: ${w.item.name} возвращён в инвентарь${w.reason?' ('+w.reason+')':''}`);save();return {ok:true};
 };
 
 /* ---------- balance top-ups ---------- */
